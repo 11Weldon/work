@@ -1,7 +1,7 @@
 import sys
 import os
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
@@ -101,16 +101,16 @@ async def add_client_tariff(session: AsyncSession, client_id: int, tariff_id: in
         return None
 
 
-async def get_tariffs_with_functions(session: AsyncSession, tariff_id: int):
-    stmt = select(Function).join(TariffFunction).join(Tariff).filter(Tariff.tariff_id == tariff_id)
-    result = await session.execute(stmt)
-    return result.scalars().all()
-
-
-async def get_client_tariffs(session: AsyncSession, client_id: int):
-    stmt = select(ClientTariff).options(selectinload(ClientTariff.tariff)).filter_by(client_id=client_id)
-    result = await session.execute(stmt)
-    return [ct.tariff for ct in result.scalars().all()]
+# async def get_tariffs_with_functions(session: AsyncSession, tariff_id: int):
+#     stmt = select(Function).join(TariffFunction).join(Tariff).filter(Tariff.tariff_id == tariff_id)
+#     result = await session.execute(stmt)
+#     return result.scalars().all()
+#
+#
+# async def get_client_tariffs(session: AsyncSession, client_id: int):
+#     stmt = select(ClientTariff).options(selectinload(ClientTariff.tariff)).filter_by(client_id=client_id)
+#     result = await session.execute(stmt)
+#     return [ct.tariff for ct in result.scalars().all()]
 
 
 async def get_all_tariffs_with_functions(session: AsyncSession):
@@ -123,3 +123,112 @@ async def get_all_client_tariffs(session: AsyncSession):
     stmt = select(Client).options(selectinload(Client.client_tariffs).selectinload(ClientTariff.tariff))
     result = await session.execute(stmt)
     return [c for c in result.scalars().all()]
+
+
+async def delete_client(session: AsyncSession, client_id: int):
+    try:
+        client = await session.execute(select(Client).filter_by(client_id=client_id))
+        client_obj = client.scalar()
+        if not client_obj:
+            print(f"Client with ID {client_id} not found.")
+            return None
+
+        # Delete associated ClientTariff records
+        await session.execute(delete(ClientTariff).where(ClientTariff.client_id == client_id))
+
+        await session.delete(client_obj)
+        await session.commit()
+        print(f"Deleted Client with ID {client_id}.")
+        return client_obj
+    except Exception as ex:
+        await session.rollback()
+        print(f"Unexpected error: {ex}")
+        return None
+
+
+async def delete_tariff(session: AsyncSession, tariff_id: int):
+    try:
+        # Fetch the tariff object
+        tariff = await session.execute(select(Tariff).filter_by(tariff_id=tariff_id))
+        tariff_obj = tariff.scalar()
+
+        if not tariff_obj:
+            print(f"Tariff with ID {tariff_id} not found.")
+            return None
+
+        # Delete associated TariffFunction records
+        await session.execute(delete(TariffFunction).where(TariffFunction.tariff_id == tariff_id))
+
+        # Delete associated ClientTariff records
+        await session.execute(delete(ClientTariff).where(ClientTariff.tariff_id == tariff_id))
+
+        # Delete the tariff object itself
+        await session.delete(tariff_obj)
+
+        # Commit the transaction
+        await session.commit()
+
+        print(f"Deleted Tariff with ID {tariff_id}.")
+        return tariff_obj
+    except Exception as ex:
+        await session.rollback()
+        print(f"Unexpected error: {ex}")
+        return None
+
+
+async def delete_function(session: AsyncSession, function_id: int):
+    try:
+        function = await session.execute(select(Function).filter_by(function_id=function_id))
+        function_obj = function.scalar()
+        if not function_obj:
+            print(f"Function with ID {function_id} not found.")
+            return None
+
+        await session.delete(function_obj)
+        await session.commit()
+        print(f"Deleted Function with ID {function_id}.")
+        return function_obj
+    except Exception as ex:
+        await session.rollback()
+        print(f"Unexpected error: {ex}")
+        return None
+
+
+async def remove_client_tariff(session: AsyncSession, client_id: int, tariff_id: int):
+    try:
+        client_tariff = await session.execute(
+            select(ClientTariff).filter_by(client_id=client_id, tariff_id=tariff_id)
+        )
+        client_tariff_obj = client_tariff.scalar()
+        if not client_tariff_obj:
+            print(f"ClientTariff with client_id={client_id} and tariff_id={tariff_id} not found.")
+            return None
+
+        await session.delete(client_tariff_obj)
+        await session.commit()
+        print(f"Removed Tariff {tariff_id} from Client {client_id}.")
+        return client_tariff_obj
+    except Exception as ex:
+        await session.rollback()
+        print(f"Unexpected error: {ex}")
+        return None
+
+
+async def remove_function_from_tariff(session: AsyncSession, tariff_id: int, function_id: int):
+    try:
+        tariff_function = await session.execute(
+            select(TariffFunction).filter_by(tariff_id=tariff_id, function_id=function_id)
+        )
+        tariff_function_obj = tariff_function.scalar()
+        if not tariff_function_obj:
+            print(f"TariffFunction with tariff_id={tariff_id} and function_id={function_id} not found.")
+            return None
+
+        await session.delete(tariff_function_obj)
+        await session.commit()
+        print(f"Removed Function {function_id} from Tariff {tariff_id}.")
+        return tariff_function_obj
+    except Exception as ex:
+        await session.rollback()
+        print(f"Unexpected error: {ex}")
+        return None

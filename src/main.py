@@ -170,6 +170,70 @@ async def add_client_tariff(client_id: int, tariff_id: int, session: AsyncSessio
         raise HTTPException(status_code=500, detail=str(ex))
 
 
+@app.delete("/client/{client_id}/")
+async def delete_client_route(client_id: int, session: AsyncSession = Depends(get_db)):
+    try:
+        deleted_client = await orm.delete_client(session, client_id)
+        if deleted_client:
+            return {"message": f"Deleted Client with ID {client_id}."}
+        else:
+            raise HTTPException(status_code=404, detail=f"Client with ID {client_id} not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/tariff/{tariff_id}/")
+async def delete_tariff_route(tariff_id: int, session: AsyncSession = Depends(get_db)):
+    try:
+        deleted_tariff = await orm.delete_tariff(session, tariff_id)
+        if deleted_tariff:
+            return {"message": f"Deleted Tariff with ID {tariff_id}."}
+        else:
+            raise HTTPException(status_code=404, detail=f"Tariff with ID {tariff_id} not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/function/{function_id}/")
+async def delete_function_route(function_id: int, session: AsyncSession = Depends(get_db)):
+    try:
+        deleted_function = await orm.delete_function(session, function_id)
+        if deleted_function:
+            return {"message": f"Deleted Function with ID {function_id}."}
+        else:
+            raise HTTPException(status_code=404, detail=f"Function with ID {function_id} not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/client/{client_id}/tariff/{tariff_id}/")
+async def remove_client_tariff_route(client_id: int, tariff_id: int, session: AsyncSession = Depends(get_db)):
+    try:
+        removed_client_tariff = await orm.remove_client_tariff(session, client_id, tariff_id)
+        if removed_client_tariff:
+            return {"message": f"Removed Tariff {tariff_id} from Client {client_id}."}
+        else:
+            raise HTTPException(status_code=404,
+                                detail=f"ClientTariff with client_id={client_id} and tariff_id={tariff_id} not "
+                                       f"found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/tariff/{tariff_id}/function/{function_id}/")
+async def remove_function_from_tariff_route(tariff_id: int, function_id: int,
+                                            session: AsyncSession = Depends(get_db)):
+    try:
+        removed_function_from_tariff = await orm.remove_function_from_tariff(session, tariff_id, function_id)
+        if removed_function_from_tariff:
+            return {"message": f"Removed Function {function_id} from Tariff {tariff_id}."}
+        else:
+            raise HTTPException(status_code=404,
+                                detail=f"TariffFunction with tariff_id={tariff_id} and function_id={function_id} not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/reload/")
 async def reload_db():
     await orm.AsyncORM.create_tables()
