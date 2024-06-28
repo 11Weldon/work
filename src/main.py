@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 import orm
-from schema import ClientSchema, TariffSchema, FunctionSchema
+from schema import ClientSchema, TariffSchema, FunctionSchema, TariffWithFunctionsSchema, ClientWithTariffsSchema
 from database import get_db
 
 
@@ -66,6 +66,34 @@ async def get_function(session: AsyncSession = Depends(get_db)):
     try:
         function = await orm.get_func(session)
         return [FunctionSchema(title=f.function_title, id=f.function_id) for f in function]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/tariffs/", response_model=list[TariffWithFunctionsSchema])
+async def get_all_tariffs_with_functions_route(session: AsyncSession = Depends(get_db)):
+    try:
+        tariffs = await orm.get_all_tariffs_with_functions(session)
+        return [{
+            "id": t.tariff_id,
+            "title": t.tariff_title,
+            "functions": [{"id": f.function_id, "title": f.function_title} for f in t.functions]
+        } for t in tariffs]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Endpoint to fetch all clients with their linked tariffs
+@app.get("/clients/", response_model=list[ClientWithTariffsSchema])
+async def get_all_clients_with_tariffs_route(session: AsyncSession = Depends(get_db)):
+    try:
+        clients = await orm.get_all_client_tariffs(session)
+        return [{
+            "id": c.client_id,
+            "name": c.client_name,
+            "balance": c.client_balance,
+            "tariffs": [{"id": ct.tariff.tariff_id, "title": ct.tariff.tariff_title} for ct in c.client_tariffs]
+        } for c in clients]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

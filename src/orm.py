@@ -111,3 +111,15 @@ async def get_client_tariffs(session: AsyncSession, client_id: int):
     stmt = select(ClientTariff).options(selectinload(ClientTariff.tariff)).filter_by(client_id=client_id)
     result = await session.execute(stmt)
     return [ct.tariff for ct in result.scalars().all()]
+
+
+async def get_all_tariffs_with_functions(session: AsyncSession):
+    stmt = select(Tariff).options(selectinload(Tariff.functions))
+    result = await session.execute(stmt)
+    return [t for t in result.scalars().all()]
+
+
+async def get_all_client_tariffs(session: AsyncSession):
+    stmt = select(Client).options(selectinload(Client.client_tariffs).selectinload(ClientTariff.tariff))
+    result = await session.execute(stmt)
+    return [c for c in result.scalars().all()]

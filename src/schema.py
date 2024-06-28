@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -15,3 +17,16 @@ class TariffSchema(BaseModel):
 class FunctionSchema(BaseModel):
     id: int
     title: str
+
+
+class TariffWithFunctionsSchema(BaseModel):
+    id: int
+    title: str
+    functions: List[FunctionSchema]
+
+
+class ClientWithTariffsSchema(BaseModel):
+    id: int
+    name: str
+    balance: int
+    tariffs: List[TariffSchema]
