@@ -9,24 +9,24 @@ class ClientSchema(BaseModel):
     name: str
 
 
-class TariffSchema(BaseModel):
+class BundleSchema(BaseModel):
     id: int
     title: str
 
 
-class FunctionSchema(BaseModel):
+class ChannelSchema(BaseModel):
     id: int
     title: str
 
 
-class TariffWithFunctionsSchema(BaseModel):
+class BundleWithChannelsSchema(BaseModel):
     id: int
     title: str
-    functions: List[FunctionSchema]
+    channels: List[ChannelSchema]
 
 
-class ClientWithTariffsSchema(BaseModel):
+class ClientWithBundlesSchema(BaseModel):
     id: int
     name: str
     balance: int
-    tariffs: List[TariffSchema]
+    bundles: List[BundleSchema]

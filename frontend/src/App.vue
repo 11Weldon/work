@@ -5,8 +5,8 @@
     <!-- Navigation Links -->
     <nav>
       <router-link to="/clients">Clients</router-link> |
-      <router-link to="/functions">Functions</router-link> |
-      <router-link to="/tariffs">Tariffs</router-link>
+      <router-link to="/channels">Channels</router-link> |
+      <router-link to="/bundles">Bundles</router-link>
     </nav>
 
     <!-- Router View -->

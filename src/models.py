@@ -2,7 +2,7 @@ from typing import Annotated
 
 from sqlalchemy import String, Integer, Column, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base, str_256
+from database import Base
 from sqlalchemy.orm import Mapped, mapped_column
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
@@ -16,54 +16,48 @@ class Client(Base):
     client_balance: Mapped[int] = mapped_column(nullable=False)
 
 
-class ClientTariff(Base):
-    __tablename__ = 'ClientTariff'
+class ClientBundle(Base):
+    __tablename__ = 'ClientBundle'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     client_id = Column(Integer, ForeignKey('Client.client_id'))
-    tariff_id = Column(Integer, ForeignKey('Tariff.tariff_id'))
+    bundle_id = Column(Integer, ForeignKey('Bundle.bundle_id'))
 
-    client = relationship('Client', backref='client_tariffs')
-    tariff = relationship('Tariff', backref='client_tariffs')
+    client = relationship('Client', backref='client_bundles')
+    bundle = relationship('Bundle', backref='client_bundles')
 
     @classmethod
-    def link_client_to_tariff(cls, session, client_id, tariff_id):
-        client_tariff = cls(client_id=client_id, tariff_id=tariff_id)
-        session.add(client_tariff)
-        return client_tariff
+    def link_client_to_bundle(cls, session, client_id, bundle_id):
+        client_bundle = cls(client_id=client_id, bundle_id=bundle_id)
+        session.add(client_bundle)
+        return client_bundle
 
 
-class Tariff(Base):
-    __tablename__ = 'Tariff'
+class Bundle(Base):
+    __tablename__ = 'Bundle'
 
-    tariff_id = Column(Integer, primary_key=True)
-    tariff_title = Column(String(200), nullable=False)
+    bundle_id = Column(Integer, primary_key=True)
+    bundle_title = Column(String(200), nullable=False)
 
-    functions = relationship('Function', secondary='TariffFunction', backref='tariffs')
-
-
-class Function(Base):
-    __tablename__ = 'Function'
-
-    function_id = Column(Integer, primary_key=True)
-    function_title = Column(String(200), nullable=False)
-    tariff_id = Column(Integer, ForeignKey('Tariff.tariff_id'))
-
-    tariff = relationship('Tariff', back_populates='functions')
+    channels = relationship('Channel', secondary='BundleChannel', backref='bundles')
 
 
-class TariffFunction(Base):
-    __tablename__ = 'TariffFunction'
+class Channel(Base):
+    __tablename__ = 'Channel'
+
+    channel_id = Column(Integer, primary_key=True)
+    channel_title = Column(String(200), nullable=False)
+    bundle_id = Column(Integer, ForeignKey('Bundle.bundle_id'))
+
+    bundle = relationship('Bundle', back_populates='channels')
+
+
+class BundleChannel(Base):
+    __tablename__ = 'BundleChannel'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    tariff_id = Column(Integer, ForeignKey('Tariff.tariff_id'))
-    function_id = Column(Integer, ForeignKey('Function.function_id'))
+    bundle_id = Column(Integer, ForeignKey('Bundle.bundle_id'))
+    channel_id = Column(Integer, ForeignKey('Channel.channel_id'))
 
-    tariff = relationship('Tariff', backref='tariff_functions')
-    function = relationship('Function', backref='tariff_functions')
-
-    @classmethod
-    def link_tariff_to_function(cls, session, tariff_id, function_id):
-        tariff_function = cls(tariff_id=tariff_id, function_id=function_id)
-        session.add(tariff_function)
-        return tariff_function
+    bundle = relationship('Bundle', backref='bundle_channels')
+    channel = relationship('Channel', backref='bundle_channels')

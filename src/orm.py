@@ -1,13 +1,9 @@
-import sys
-import os
-
 from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from database import Base, async_engine, async_session_factory
-from models import Client, Function, Tariff, TariffFunction, ClientTariff
+from models import Client, Bundle, BundleChannel, ClientBundle, Channel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -32,41 +28,41 @@ async def get_clients(session: AsyncSession) -> list[Client]:
 
 
 async def add_func(session: AsyncSession, title: str, id: int):
-    new_func = Function(function_id=id, function_title=title)
+    new_func = Channel(channel_id=id, channel_title=title)
     session.add(new_func)
     return new_func
 
 
-async def get_func(session: AsyncSession) -> list[Function]:
-    result = await session.execute(select(Function))
+async def get_func(session: AsyncSession) -> list[Channel]:
+    result = await session.execute(select(Channel))
     return result.scalars().all()
 
 
-async def add_tariff(session: AsyncSession, title: str, id: int):
-    new_tariff = Tariff(tariff_id=id, tariff_title=title)
-    session.add(new_tariff)
-    return new_tariff
+async def add_bundle(session: AsyncSession, title: str, id: int):
+    new_bundle = Bundle(bundle_id=id, bundle_title=title)
+    session.add(new_bundle)
+    return new_bundle
 
 
-async def get_tariff(session: AsyncSession) -> list[Tariff]:
-    result = await session.execute(select(Tariff))
+async def get_bundle(session: AsyncSession) -> list[Bundle]:
+    result = await session.execute(select(Bundle))
     return result.scalars().all()
 
 
-async def add_function_to_tariff(session: AsyncSession, tariff_id: int, function_id: int):
+async def add_channel_to_bundle(session: AsyncSession, bundle_id: int, channel_id: int):
     try:
-        existing_tariff_function = await session.execute(
-            select(TariffFunction).filter_by(tariff_id=tariff_id, function_id=function_id)
+        existing_bundle_channel = await session.execute(
+            select(BundleChannel).filter_by(bundle_id=bundle_id, channel_id=channel_id)
         )
-        if existing_tariff_function.scalar():
-            print(f"TariffFunction already exists for tariff_id={tariff_id} and function_id={function_id}")
+        if existing_bundle_channel.scalar():
+            print(f"BundleChannel already exists for bundle_id={bundle_id} and channel_id={channel_id}")
             return None
 
-        new_tariff_function = TariffFunction(tariff_id=tariff_id, function_id=function_id)
-        session.add(new_tariff_function)
+        new_bundle_channel = BundleChannel(bundle_id=bundle_id, channel_id=channel_id)
+        session.add(new_bundle_channel)
         await session.commit()
-        print(f"Added new TariffFunction for tariff_id={tariff_id} and function_id={function_id}")
-        return new_tariff_function
+        print(f"Added new BundleChannel for bundle_id={bundle_id} and channel_id={channel_id}")
+        return new_bundle_channel
     except IntegrityError as ex:
         await session.rollback()
         print(f"IntegrityError: {ex}")
@@ -77,20 +73,20 @@ async def add_function_to_tariff(session: AsyncSession, tariff_id: int, function
         return None
 
 
-async def add_client_tariff(session: AsyncSession, client_id: int, tariff_id: int):
+async def add_client_bundle(session: AsyncSession, client_id: int, bundle_id: int):
     try:
-        existing_client_tariff = await session.execute(
-            select(ClientTariff).filter_by(client_id=client_id, tariff_id=tariff_id)
+        existing_client_bundle = await session.execute(
+            select(ClientBundle).filter_by(client_id=client_id, bundle_id=bundle_id)
         )
-        if existing_client_tariff.scalar():
-            print(f"ClientTariff already exists for client_id={client_id} and tariff_id={tariff_id}")
+        if existing_client_bundle.scalar():
+            print(f"ClientBundle already exists for client_id={client_id} and bundle_id={bundle_id}")
             return None
 
-        new_client_tariff = ClientTariff(client_id=client_id, tariff_id=tariff_id)
-        session.add(new_client_tariff)
+        new_client_bundle = ClientBundle(client_id=client_id, bundle_id=bundle_id)
+        session.add(new_client_bundle)
         await session.commit()
-        print(f"Added new ClientTariff for client_id={client_id} and tariff_id={tariff_id}")
-        return new_client_tariff
+        print(f"Added new ClientBundle for client_id={client_id} and bundle_id={bundle_id}")
+        return new_client_bundle
     except IntegrityError as ex:
         await session.rollback()
         print(f"IntegrityError: {ex}")
@@ -101,26 +97,14 @@ async def add_client_tariff(session: AsyncSession, client_id: int, tariff_id: in
         return None
 
 
-# async def get_tariffs_with_functions(session: AsyncSession, tariff_id: int):
-#     stmt = select(Function).join(TariffFunction).join(Tariff).filter(Tariff.tariff_id == tariff_id)
-#     result = await session.execute(stmt)
-#     return result.scalars().all()
-#
-#
-# async def get_client_tariffs(session: AsyncSession, client_id: int):
-#     stmt = select(ClientTariff).options(selectinload(ClientTariff.tariff)).filter_by(client_id=client_id)
-#     result = await session.execute(stmt)
-#     return [ct.tariff for ct in result.scalars().all()]
-
-
-async def get_all_tariffs_with_functions(session: AsyncSession):
-    stmt = select(Tariff).options(selectinload(Tariff.functions))
+async def get_all_bundles_with_channels(session: AsyncSession):
+    stmt = select(Bundle).options(selectinload(Bundle.channels))
     result = await session.execute(stmt)
     return [t for t in result.scalars().all()]
 
 
-async def get_all_client_tariffs(session: AsyncSession):
-    stmt = select(Client).options(selectinload(Client.client_tariffs).selectinload(ClientTariff.tariff))
+async def get_all_client_bundles(session: AsyncSession):
+    stmt = select(Client).options(selectinload(Client.client_bundles).selectinload(ClientBundle.bundle))
     result = await session.execute(stmt)
     return [c for c in result.scalars().all()]
 
@@ -133,8 +117,7 @@ async def delete_client(session: AsyncSession, client_id: int):
             print(f"Client with ID {client_id} not found.")
             return None
 
-        # Delete associated ClientTariff records
-        await session.execute(delete(ClientTariff).where(ClientTariff.client_id == client_id))
+        await session.execute(delete(ClientBundle).where(ClientBundle.client_id == client_id))
 
         await session.delete(client_obj)
         await session.commit()
@@ -146,88 +129,84 @@ async def delete_client(session: AsyncSession, client_id: int):
         return None
 
 
-async def delete_tariff(session: AsyncSession, tariff_id: int):
+async def delete_bundle(session: AsyncSession, bundle_id: int):
     try:
-        # Fetch the tariff object
-        tariff = await session.execute(select(Tariff).filter_by(tariff_id=tariff_id))
-        tariff_obj = tariff.scalar()
+        # Fetch the bundle object
+        bundle = await session.execute(select(Bundle).filter_by(bundle_id=bundle_id))
+        bundle_obj = bundle.scalar()
 
-        if not tariff_obj:
-            print(f"Tariff with ID {tariff_id} not found.")
+        if not bundle_obj:
+            print(f"Bundle with ID {bundle_id} not found.")
             return None
 
-        # Delete associated TariffFunction records
-        await session.execute(delete(TariffFunction).where(TariffFunction.tariff_id == tariff_id))
+        await session.execute(delete(BundleChannel).where(BundleChannel.bundle_id == bundle_id))
 
-        # Delete associated ClientTariff records
-        await session.execute(delete(ClientTariff).where(ClientTariff.tariff_id == tariff_id))
+        await session.execute(delete(ClientBundle).where(ClientBundle.bundle_id == bundle_id))
 
-        # Delete the tariff object itself
-        await session.delete(tariff_obj)
+        await session.delete(bundle_obj)
 
-        # Commit the transaction
         await session.commit()
 
-        print(f"Deleted Tariff with ID {tariff_id}.")
-        return tariff_obj
+        print(f"Deleted Bundle with ID {bundle_id}.")
+        return bundle_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")
         return None
 
 
-async def delete_function(session: AsyncSession, function_id: int):
+async def delete_channel(session: AsyncSession, channel_id: int):
     try:
-        function = await session.execute(select(Function).filter_by(function_id=function_id))
-        function_obj = function.scalar()
-        if not function_obj:
-            print(f"Function with ID {function_id} not found.")
+        channel = await session.execute(select(Channel).filter_by(channel_id=channel_id))
+        channel_obj = channel.scalar()
+        if not channel_obj:
+            print(f"Channel with ID {channel_id} not found.")
             return None
 
-        await session.delete(function_obj)
+        await session.delete(channel_obj)
         await session.commit()
-        print(f"Deleted Function with ID {function_id}.")
-        return function_obj
+        print(f"Deleted Channel with ID {channel_id}.")
+        return channel_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")
         return None
 
 
-async def remove_client_tariff(session: AsyncSession, client_id: int, tariff_id: int):
+async def delete_client_bundle(session: AsyncSession, client_id: int, bundle_id: int):
     try:
-        client_tariff = await session.execute(
-            select(ClientTariff).filter_by(client_id=client_id, tariff_id=tariff_id)
+        client_bundle = await session.execute(
+            select(ClientBundle).filter_by(client_id=client_id, bundle_id=bundle_id)
         )
-        client_tariff_obj = client_tariff.scalar()
-        if not client_tariff_obj:
-            print(f"ClientTariff with client_id={client_id} and tariff_id={tariff_id} not found.")
+        client_bundle_obj = client_bundle.scalar()
+        if not client_bundle_obj:
+            print(f"ClientBundle with client_id={client_id} and bundle_id={bundle_id} not found.")
             return None
 
-        await session.delete(client_tariff_obj)
+        await session.delete(client_bundle_obj)
         await session.commit()
-        print(f"Removed Tariff {tariff_id} from Client {client_id}.")
-        return client_tariff_obj
+        print(f"Removed Bundle {bundle_id} from Client {client_id}.")
+        return client_bundle_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")
         return None
 
 
-async def remove_function_from_tariff(session: AsyncSession, tariff_id: int, function_id: int):
+async def delete_channel_from_bundle(session: AsyncSession, bundle_id: int, channel_id: int):
     try:
-        tariff_function = await session.execute(
-            select(TariffFunction).filter_by(tariff_id=tariff_id, function_id=function_id)
+        bundle_channel = await session.execute(
+            select(BundleChannel).filter_by(bundle_id=bundle_id, channel_id=channel_id)
         )
-        tariff_function_obj = tariff_function.scalar()
-        if not tariff_function_obj:
-            print(f"TariffFunction with tariff_id={tariff_id} and function_id={function_id} not found.")
+        bundle_channel_obj = bundle_channel.scalar()
+        if not bundle_channel_obj:
+            print(f"BundleChannel with bundle_id={bundle_id} and channel_id={channel_id} not found.")
             return None
 
-        await session.delete(tariff_function_obj)
+        await session.delete(bundle_channel_obj)
         await session.commit()
-        print(f"Removed Function {function_id} from Tariff {tariff_id}.")
-        return tariff_function_obj
+        print(f"Removed Channel {channel_id} from Bundle {bundle_id}.")
+        return bundle_channel_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")

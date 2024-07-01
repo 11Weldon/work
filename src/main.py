@@ -1,12 +1,9 @@
-import os
-import sys
-
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 import orm
-from schema import ClientSchema, TariffSchema, FunctionSchema, TariffWithFunctionsSchema, ClientWithTariffsSchema
+from schema import ClientSchema, BundleSchema, ChannelSchema, BundleWithChannelsSchema, ClientWithBundlesSchema
 from database import get_db
 
 
@@ -16,7 +13,7 @@ def create_fastapi_app():
         CORSMiddleware,
         allow_origins=["*"],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Добавьте OPTIONS сюда
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
     return app
@@ -34,65 +31,46 @@ async def get_cli(session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/tariff/", response_model=list[TariffSchema])
-async def get_tariff(session: AsyncSession = Depends(get_db)):
+@app.get("/bundle/", response_model=list[BundleSchema])
+async def get_bundle(session: AsyncSession = Depends(get_db)):
     try:
-        tariff = await orm.get_tariff(session)
-        return [TariffSchema(title=t.tariff_title, id=t.tariff_id) for t in tariff]
+        bundle = await orm.get_bundle(session)
+        return [BundleSchema(title=t.bundle_title, id=t.bundle_id) for t in bundle]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/tariffs/{tariff_id}/", response_model=list[FunctionSchema])
-async def get_tariffs_with_functions_route(tariff_id: int, session: AsyncSession = Depends(get_db)):
+@app.get("/channel/", response_model=list[ChannelSchema])
+async def get_channel(session: AsyncSession = Depends(get_db)):
     try:
-        functions = await orm.get_tariffs_with_functions(session, tariff_id)
-        return [FunctionSchema(title=f.function_title, id=f.function_id) for f in functions]
+        channel = await orm.get_func(session)
+        return [ChannelSchema(title=f.channel_title, id=f.channel_id) for f in channel]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/client/{client_id}/tariffs/", response_model=list[TariffSchema])
-async def get_client_tariffs_route(client_id: int, session: AsyncSession = Depends(get_db)):
+@app.get("/bundles/", response_model=list[BundleWithChannelsSchema])
+async def get_all_bundles_with_channels_route(session: AsyncSession = Depends(get_db)):
     try:
-        tariffs = await orm.get_client_tariffs(session, client_id)
-        return [{"id": tariff.tariff_id, "title": tariff.tariff_title} for tariff in tariffs]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/function/", response_model=list[FunctionSchema])
-async def get_function(session: AsyncSession = Depends(get_db)):
-    try:
-        function = await orm.get_func(session)
-        return [FunctionSchema(title=f.function_title, id=f.function_id) for f in function]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/tariffs/", response_model=list[TariffWithFunctionsSchema])
-async def get_all_tariffs_with_functions_route(session: AsyncSession = Depends(get_db)):
-    try:
-        tariffs = await orm.get_all_tariffs_with_functions(session)
+        bundles = await orm.get_all_bundles_with_channels(session)
         return [{
-            "id": t.tariff_id,
-            "title": t.tariff_title,
-            "functions": [{"id": f.function_id, "title": f.function_title} for f in t.functions]
-        } for t in tariffs]
+            "id": t.bundle_id,
+            "title": t.bundle_title,
+            "channels": [{"id": f.channel_id, "title": f.channel_title} for f in t.channels]
+        } for t in bundles]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Endpoint to fetch all clients with their linked tariffs
-@app.get("/clients/", response_model=list[ClientWithTariffsSchema])
-async def get_all_clients_with_tariffs_route(session: AsyncSession = Depends(get_db)):
+@app.get("/clients/", response_model=list[ClientWithBundlesSchema])
+async def get_all_clients_with_bundles_route(session: AsyncSession = Depends(get_db)):
     try:
-        clients = await orm.get_all_client_tariffs(session)
+        clients = await orm.get_all_client_bundles(session)
         return [{
             "id": c.client_id,
             "name": c.client_name,
             "balance": c.client_balance,
-            "tariffs": [{"id": ct.tariff.tariff_id, "title": ct.tariff.tariff_title} for ct in c.client_tariffs]
+            "bundles": [{"id": ct.bundle.bundle_id, "title": ct.bundle.bundle_title} for ct in c.client_bundles]
         } for c in clients]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -112,12 +90,12 @@ async def add_cli(client: ClientSchema, session: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/function/")
-async def add_function(function: FunctionSchema, session: AsyncSession = Depends(get_db)):
+@app.post("/channel/")
+async def add_channel(channel: ChannelSchema, session: AsyncSession = Depends(get_db)):
     try:
-        function = await orm.add_func(session, function.title, function.id)
+        channel = await orm.add_func(session, channel.title, channel.id)
         await session.commit()
-        return function
+        return channel
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -126,12 +104,12 @@ async def add_function(function: FunctionSchema, session: AsyncSession = Depends
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/tariff/")
-async def add_tariff(tariff: TariffSchema, session: AsyncSession = Depends(get_db)):
+@app.post("/bundle/")
+async def add_bundle(bundle: BundleSchema, session: AsyncSession = Depends(get_db)):
     try:
-        tariffs = await orm.add_tariff(session, tariff.title, tariff.id)
+        bundles = await orm.add_bundle(session, bundle.title, bundle.id)
         await session.commit()
-        return tariffs
+        return bundles
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -140,12 +118,12 @@ async def add_tariff(tariff: TariffSchema, session: AsyncSession = Depends(get_d
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/tariff/{tariff_id}/function/{function_id}/")
-async def add_function_to_tariff(tariff_id: int, function_id: int, session: AsyncSession = Depends(get_db)):
+@app.post("/bundle/{bundle_id}/channel/{channel_id}/")
+async def add_channel_to_bundle(bundle_id: int, channel_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        new_tariff_function = await orm.add_function_to_tariff(session, tariff_id, function_id)
+        new_bundle_channel = await orm.add_channel_to_bundle(session, bundle_id, channel_id)
         await session.commit()
-        return new_tariff_function
+        return new_bundle_channel
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -154,14 +132,14 @@ async def add_function_to_tariff(tariff_id: int, function_id: int, session: Asyn
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/client/{client_id}/tariffs/{tariff_id}/")
-async def add_client_tariff(client_id: int, tariff_id: int, session: AsyncSession = Depends(get_db)):
+@app.post("/client/{client_id}/bundles/{bundle_id}/")
+async def add_client_bundle(client_id: int, bundle_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        new_client_tariff = await orm.add_client_tariff(session, client_id, tariff_id)
-        if new_client_tariff:
-            return {"message": f"Tariff {tariff_id} added to client {client_id} successfully."}
+        new_client_bundle = await orm.add_client_bundle(session, client_id, bundle_id)
+        if new_client_bundle:
+            return {"message": f"Bundle {bundle_id} added to client {client_id} successfully."}
         else:
-            raise HTTPException(status_code=400, detail=f"Failed to add tariff")
+            raise HTTPException(status_code=400, detail=f"Failed to add bundle")
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -182,54 +160,54 @@ async def delete_client_route(client_id: int, session: AsyncSession = Depends(ge
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/tariff/{tariff_id}/")
-async def delete_tariff_route(tariff_id: int, session: AsyncSession = Depends(get_db)):
+@app.delete("/bundle/{bundle_id}/")
+async def delete_bundle_route(bundle_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        deleted_tariff = await orm.delete_tariff(session, tariff_id)
-        if deleted_tariff:
-            return {"message": f"Deleted Tariff with ID {tariff_id}."}
+        deleted_bundle = await orm.delete_bundle(session, bundle_id)
+        if deleted_bundle:
+            return {"message": f"Deleted Bundle with ID {bundle_id}."}
         else:
-            raise HTTPException(status_code=404, detail=f"Tariff with ID {tariff_id} not found.")
+            raise HTTPException(status_code=404, detail=f"Bundle with ID {bundle_id} not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/function/{function_id}/")
-async def delete_function_route(function_id: int, session: AsyncSession = Depends(get_db)):
+@app.delete("/channel/{channel_id}/")
+async def delete_channel_route(channel_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        deleted_function = await orm.delete_function(session, function_id)
-        if deleted_function:
-            return {"message": f"Deleted Function with ID {function_id}."}
+        deleted_channel = await orm.delete_channel(session, channel_id)
+        if deleted_channel:
+            return {"message": f"Deleted Channel with ID {channel_id}."}
         else:
-            raise HTTPException(status_code=404, detail=f"Function with ID {function_id} not found.")
+            raise HTTPException(status_code=404, detail=f"Channel with ID {channel_id} not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/client/{client_id}/tariff/{tariff_id}/")
-async def remove_client_tariff_route(client_id: int, tariff_id: int, session: AsyncSession = Depends(get_db)):
+@app.delete("/client/{client_id}/bundles/{bundle_id}/")
+async def delete_client_bundle_route(client_id: int, bundle_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        removed_client_tariff = await orm.remove_client_tariff(session, client_id, tariff_id)
-        if removed_client_tariff:
-            return {"message": f"Removed Tariff {tariff_id} from Client {client_id}."}
+        removed_client_bundle = await orm.delete_client_bundle(session, client_id, bundle_id)
+        if removed_client_bundle:
+            return {"message": f"Removed Bundle {bundle_id} from Client {client_id}."}
         else:
             raise HTTPException(status_code=404,
-                                detail=f"ClientTariff with client_id={client_id} and tariff_id={tariff_id} not "
+                                detail=f"ClientBundle with client_id={client_id} and bundle_id={bundle_id} not "
                                        f"found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/tariff/{tariff_id}/function/{function_id}/")
-async def remove_function_from_tariff_route(tariff_id: int, function_id: int,
+@app.delete("/bundle/{bundle_id}/channel/{channel_id}/")
+async def delete_channel_from_bundle_route(bundle_id: int, channel_id: int,
                                             session: AsyncSession = Depends(get_db)):
     try:
-        removed_function_from_tariff = await orm.remove_function_from_tariff(session, tariff_id, function_id)
-        if removed_function_from_tariff:
-            return {"message": f"Removed Function {function_id} from Tariff {tariff_id}."}
+        removed_channel_from_bundle = await orm.delete_channel_from_bundle(session, bundle_id, channel_id)
+        if removed_channel_from_bundle:
+            return {"message": f"Removed Channel {channel_id} from Bundle {bundle_id}."}
         else:
             raise HTTPException(status_code=404,
-                                detail=f"TariffFunction with tariff_id={tariff_id} and function_id={function_id} not found.")
+                                detail=f"BundleChannel with bundle_id={bundle_id} and channel_id={channel_id} not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -18,9 +18,11 @@ class Settings(BaseSettings):
 
 settings = Settings(
     DB_HOST="localhost",
-    DB_PORT=5432,
+    DB_PORT=5433,
     DB_USER="postgres",
-    DB_PASS="password",
+    DB_PASS="mysecretpassword",
     DB_NAME="postgres"
 )
+
+
 

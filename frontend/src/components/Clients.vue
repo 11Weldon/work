@@ -6,22 +6,22 @@
       <li v-for="client in clients" :key="client.id" class="client-item">
         Client
         ID: {{ client.id }} | Name: {{ client.name }} | Balance: {{ client.balance }}
-        <ul class="client-tariffs-list">
+        <ul class="client-bundles-list">
           _____________________________________________
-          <li v-for="tariff in client.tariffs" :key="tariff.id" class="client-tariff-item">
-            ID: {{ tariff.id }} | Title: {{ tariff.title }}
-            <button class="action-button delete-tariff" @click="removeTariffFromClient(client.id, tariff.id)">Remove Tariff</button>
+          <li v-for="bundle in client.bundles" :key="bundle.id" class="client-bundle-item">
+            ID: {{ bundle.id }} | Title: {{ bundle.title }}
+            <button class="action-button delete-bundle" @click="removeBundleFromClient(client.id, bundle.id)">Remove Bundle</button>
           </li>
         </ul>
-        <div class="add-tariff-form">
-          <form @submit.prevent="addTariffToClient(client.id)">
-            <h3>Add Tariff to Client</h3>
-            <select v-model="client.selectedTariffId" class="tariff-select">
-              <option v-for="tariff in availableTariffs" :key="tariff.id" :value="tariff.id">
-                ID: {{ tariff.id }} | Title: {{ tariff.title }}
+        <div class="add-bundle-form">
+          <form @submit.prevent="addBundleToClient(client.id)">
+            <h3>Add Bundle to Client</h3>
+            <select v-model="client.selectedBundleId" class="bundle-select">
+              <option v-for="bundle in availableBundles" :key="bundle.id" :value="bundle.id">
+                ID: {{ bundle.id }} | Title: {{ bundle.title }}
               </option>
             </select>
-            <button type="submit" class="action-button">Add Tariff</button>
+            <button type="submit" class="action-button">Add Bundle</button>
           </form>
         </div>
       </li>
@@ -49,7 +49,7 @@ export default {
         id: null,
         balance: null
       },
-      availableTariffs: []
+      availableBundles: []
     };
   },
   methods: {
@@ -58,7 +58,7 @@ export default {
         const response = await axios.get('http://localhost:8000/clients/');
         this.clients = response.data.map(client => ({
           ...client,
-          selectedTariffId: null // Add selectedTariffId field for each client
+          selectedBundleId: null // Add selectedBundleId field for each client
         }));
       } catch (error) {
         console.error('Error loading clients:', error);
@@ -68,41 +68,41 @@ export default {
       try {
         const response = await axios.post('http://localhost:8000/client/', this.newClient);
         console.log('Added client:', response.data);
-        this.clients.push({...response.data, selectedTariffId: null});
+        this.clients.push({...response.data, selectedBundleId: null});
         this.newClient = {name: '', id: null, balance: null};
       } catch (error) {
         console.error('Error adding client:', error);
       }
     },
-    async loadAvailableTariffs() {
+    async loadAvailableBundles() {
       try {
-        const response = await axios.get('http://localhost:8000/tariffs/');
-        this.availableTariffs = response.data;
+        const response = await axios.get('http://localhost:8000/bundles/');
+        this.availableBundles = response.data;
       } catch (error) {
-        console.error('Error loading available tariffs:', error);
+        console.error('Error loading available bundles:', error);
       }
     },
-    async addTariffToClient(clientId) {
+    async addBundleToClient(clientId) {
       try {
-        const selectedTariffId = this.clients.find(c => c.id === clientId).selectedTariffId;
-        await axios.post(`http://localhost:8000/client/${clientId}/tariffs/${selectedTariffId}/`);
-        await this.loadClients(); // Reload clients after assigning tariff
+        const selectedBundleId = this.clients.find(c => c.id === clientId).selectedBundleId;
+        await axios.post(`http://localhost:8000/client/${clientId}/bundles/${selectedBundleId}/`);
+        await this.loadClients();
       } catch (error) {
-        console.error('Error assigning tariff to client:', error);
+        console.error('Error assigning bundle to client:', error);
       }
     },
-    async removeTariffFromClient(clientId, tariffId) {
+    async removeBundleFromClient(clientId, bundleId) {
       try {
-        await axios.delete(`http://localhost:8000/client/${clientId}/tariff/${tariffId}/`);
-        await this.loadClients(); // Reload clients after removing tariff
+        await axios.delete(`http://localhost:8000/client/${clientId}/bundles/${bundleId}/`);
+        await this.loadClients();
       } catch (error) {
-        console.error('Error removing tariff from client:', error);
+        console.error('Error removing bundle from client:', error);
       }
     }
   },
   mounted() {
     this.loadClients();
-    this.loadAvailableTariffs();
+    this.loadAvailableBundles();
   }
 };
 </script>
@@ -121,20 +121,20 @@ export default {
   margin-right: 50%;
 }
 
-.client-tariffs-list {
+.client-bundles-list {
   list-style-type: none;
   padding: 0;
   margin-top: 5px;
 }
 
-.client-tariff-item {
+.client-bundle-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
 }
 
-.add-tariff-form {
+.add-bundle-form {
   margin-top: 10px;
 }
 
@@ -156,11 +156,11 @@ export default {
   background-color: #0056b3;
 }
 
-.delete-tariff {
+.delete-bundle {
   background-color: #dc3545;
 }
 
-.delete-tariff:hover {
+.delete-bundle:hover {
   background-color: #c82333;
 }
 
@@ -176,7 +176,7 @@ export default {
   background-color: #218838;
 }
 
-.tariff-select {
+.bundle-select {
   margin-right: 10px;
 }
 </style>
