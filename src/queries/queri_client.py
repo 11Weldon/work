@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.models import Client, ClientProduct
+from src.models.models import Client, ClientProduct
 
 
 async def add_client(session: AsyncSession, name: str, id: int, balance: int):

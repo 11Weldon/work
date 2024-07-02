@@ -50,3 +50,17 @@ class ChannelMappingSchema(BaseModel):
     targetId: int
     type: str
     mapped: str
+
+
+class ChannelUrl(BaseModel):
+    service_id: int
+    transport_id: int
+    rec_adapter_id: int
+    live_url: str
+    time_stamp: str
+
+
+class SetChannelLiveUrlsRequest(BaseModel):
+    Channel_urls: List[ChannelUrl]
+
+

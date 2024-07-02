@@ -45,6 +45,11 @@ class Channel(Base):
     synopsis_long = Column(JSON)
     keywords = Column(JSON)
     audio = Column(JSON)
+    live_url = Column(String(255))
+    time_stamp = Column(String(50))
+    service_id = Column(Integer)
+    transport_id = Column(Integer)
+    rec_adapter_id = Column(Integer)
 
     product_id = Column(Integer, ForeignKey('Product.product_id'))
     product = relationship('Product', back_populates='channels')

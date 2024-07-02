@@ -3,8 +3,8 @@ from typing import Dict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import Base, async_engine
-from models import Domain
+from src.database import Base, async_engine
+from src.models.models import Domain
 
 
 class AsyncORM:

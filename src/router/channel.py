@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..queries import queri_channel
-from ..schema import ChannelSchema, ChannelMappingSchema
+from ..schema import ChannelSchema, ChannelMappingSchema, SetChannelLiveUrlsRequest
 
 channel_router = APIRouter()
 
@@ -62,6 +62,23 @@ async def add_channel_mapping_endpoint(mapping_data: ChannelMappingSchema, sessi
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
+    except Exception as ex:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@channel_router.post("/op_facade/chnMgmt/SetChannelLiveUrls")
+async def set_channel_live_urls(request: SetChannelLiveUrlsRequest, session: AsyncSession = Depends(get_db)):
+    try:
+        for channel_url_data in request.Channel_urls:
+            # Assuming you have a method to update Channel with live_url and time_stamp
+            await queri_channel.update_channel_live_url(session,
+                                                        channel_url_data.service_id,
+                                                        channel_url_data.transport_id,
+                                                        channel_url_data.rec_adapter_id,
+                                                        channel_url_data.live_url,
+                                                        channel_url_data.time_stamp)
+        return {"result": 0}
     except Exception as ex:
         await session.rollback()
         raise HTTPException(status_code=500, detail=str(ex))

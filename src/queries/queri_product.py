@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.models import Product, ProductChannel, ClientProduct
+from src.models.models import Product, ProductChannel, ClientProduct
 
 
 async def add_product(session: AsyncSession, title: str, id: int):

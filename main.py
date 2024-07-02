@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src import orm
 from src.database import get_db
-from src.router import client, channel, product
+from src.router import client, channel, product, household
 from src.schema import DomainSchema
 
 
@@ -25,6 +26,7 @@ app = create_fastapi_app()
 app.include_router(client.clients_router)
 app.include_router(channel.channel_router)
 app.include_router(product.products_router)
+app.include_router(household.household_router)
 
 
 @app.post("/op_facade/domMgmt/CreateDomain")
