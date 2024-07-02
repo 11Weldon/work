@@ -2,7 +2,7 @@ from typing import Annotated
 
 from sqlalchemy import String, Integer, Column, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from database import Base
+from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
