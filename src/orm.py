@@ -1,9 +1,12 @@
+from typing import Dict, Optional, List
+
+from fastapi import HTTPException
 from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from database import Base, async_engine, async_session_factory
-from models import Client, Bundle, BundleChannel, ClientBundle, Channel
+from models import Client, Product, ProductChannel, ClientProduct, Channel, Domain, ChannelMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -27,10 +30,22 @@ async def get_clients(session: AsyncSession) -> list[Client]:
     return result.scalars().all()
 
 
-async def add_func(session: AsyncSession, title: str, id: int):
-    new_func = Channel(channel_id=id, channel_title=title)
-    session.add(new_func)
-    return new_func
+# async def add_сhannel(session: AsyncSession, title: str, id: int):
+#     new_func = Channel(channel_id=id, channel_title=title)
+#     session.add(new_func)
+#     return new_func
+async def add_channel(session: AsyncSession, title: str, synopsis_short: Optional[Dict], synopsis_long: Optional[Dict],
+                      keywords: Optional[Dict], audio: Optional[Dict]):
+    new_channel = Channel(
+        channel_title=title,
+        synopsis_short=synopsis_short,
+        synopsis_long=synopsis_long,
+        keywords=keywords,
+        audio=audio
+    )
+
+    session.add(new_channel)
+    return new_channel
 
 
 async def get_func(session: AsyncSession) -> list[Channel]:
@@ -38,31 +53,31 @@ async def get_func(session: AsyncSession) -> list[Channel]:
     return result.scalars().all()
 
 
-async def add_bundle(session: AsyncSession, title: str, id: int):
-    new_bundle = Bundle(bundle_id=id, bundle_title=title)
-    session.add(new_bundle)
-    return new_bundle
+async def add_product(session: AsyncSession, title: str, id: int):
+    new_product = Product(product_id=id, product_title=title)
+    session.add(new_product)
+    return new_product
 
 
-async def get_bundle(session: AsyncSession) -> list[Bundle]:
-    result = await session.execute(select(Bundle))
+async def get_product(session: AsyncSession) -> list[Product]:
+    result = await session.execute(select(Product))
     return result.scalars().all()
 
 
-async def add_channel_to_bundle(session: AsyncSession, bundle_id: int, channel_id: int):
+async def add_channel_to_product1(session: AsyncSession, product_id: int, channel_id: int):
     try:
-        existing_bundle_channel = await session.execute(
-            select(BundleChannel).filter_by(bundle_id=bundle_id, channel_id=channel_id)
+        existing_product_channel = await session.execute(
+            select(ProductChannel).filter_by(product_id=product_id, channel_id=channel_id)
         )
-        if existing_bundle_channel.scalar():
-            print(f"BundleChannel already exists for bundle_id={bundle_id} and channel_id={channel_id}")
+        if existing_product_channel.scalar():
+            print(f"ProductChannel already exists for product_id={product_id} and channel_id={channel_id}")
             return None
 
-        new_bundle_channel = BundleChannel(bundle_id=bundle_id, channel_id=channel_id)
-        session.add(new_bundle_channel)
+        new_product_channel = ProductChannel(product_id=product_id, channel_id=channel_id)
+        session.add(new_product_channel)
         await session.commit()
-        print(f"Added new BundleChannel for bundle_id={bundle_id} and channel_id={channel_id}")
-        return new_bundle_channel
+        print(f"Added new ProductChannel for product_id={product_id} and channel_id={channel_id}")
+        return new_product_channel
     except IntegrityError as ex:
         await session.rollback()
         print(f"IntegrityError: {ex}")
@@ -73,20 +88,46 @@ async def add_channel_to_bundle(session: AsyncSession, bundle_id: int, channel_i
         return None
 
 
-async def add_client_bundle(session: AsyncSession, client_id: int, bundle_id: int):
+async def add_channel_to_product(session: AsyncSession, product_id: int, service_ids: List[int]):
     try:
-        existing_client_bundle = await session.execute(
-            select(ClientBundle).filter_by(client_id=client_id, bundle_id=bundle_id)
+        for channel_id in service_ids:
+            existing_product_channel = await session.execute(
+                select(ProductChannel).filter_by(product_id=product_id, channel_id=channel_id)
+            )
+            if existing_product_channel.scalar():
+                print(f"ProductChannel already exists for product_id={product_id} and channel_id={channel_id}")
+                continue
+
+            new_product_channel = ProductChannel(product_id=product_id, channel_id=channel_id)
+            session.add(new_product_channel)
+            print(f"Added new ProductChannel for product_id={product_id} and channel_id={channel_id}")
+
+        await session.commit()
+        return {"result": 0}
+    except IntegrityError as ex:
+        await session.rollback()
+        print(f"IntegrityError: {ex}")
+        raise ex
+    except Exception as ex:
+        print(f"Unexpected error: {ex}")
+        await session.rollback()
+        raise ex
+
+
+async def add_client_product(session: AsyncSession, client_id: int, product_id: int):
+    try:
+        existing_client_product = await session.execute(
+            select(ClientProduct).filter_by(client_id=client_id, product_id=product_id)
         )
-        if existing_client_bundle.scalar():
-            print(f"ClientBundle already exists for client_id={client_id} and bundle_id={bundle_id}")
+        if existing_client_product.scalar():
+            print(f"ClientProduct already exists for client_id={client_id} and product_id={product_id}")
             return None
 
-        new_client_bundle = ClientBundle(client_id=client_id, bundle_id=bundle_id)
-        session.add(new_client_bundle)
+        new_client_product = ClientProduct(client_id=client_id, product_id=product_id)
+        session.add(new_client_product)
         await session.commit()
-        print(f"Added new ClientBundle for client_id={client_id} and bundle_id={bundle_id}")
-        return new_client_bundle
+        print(f"Added new ClientProduct for client_id={client_id} and product_id={product_id}")
+        return new_client_product
     except IntegrityError as ex:
         await session.rollback()
         print(f"IntegrityError: {ex}")
@@ -97,14 +138,28 @@ async def add_client_bundle(session: AsyncSession, client_id: int, bundle_id: in
         return None
 
 
-async def get_all_bundles_with_channels(session: AsyncSession):
-    stmt = select(Bundle).options(selectinload(Bundle.channels))
+async def add_channel_mapping(session: AsyncSession, channelId: int, targetId: int, type: str, mapped: str):
+    try:
+        new_mapping = ChannelMapping(channel_id=channelId, target_id=targetId, type=type, mapped=mapped)
+        session.add(new_mapping)
+        await session.commit()
+        return {"result": 0}
+    except IntegrityError as ex:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
+    except Exception as ex:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+async def get_all_products_with_channels(session: AsyncSession):
+    stmt = select(Product).options(selectinload(Product.channels))
     result = await session.execute(stmt)
     return [t for t in result.scalars().all()]
 
 
-async def get_all_client_bundles(session: AsyncSession):
-    stmt = select(Client).options(selectinload(Client.client_bundles).selectinload(ClientBundle.bundle))
+async def get_all_client_products(session: AsyncSession):
+    stmt = select(Client).options(selectinload(Client.client_products).selectinload(ClientProduct.product))
     result = await session.execute(stmt)
     return [c for c in result.scalars().all()]
 
@@ -117,7 +172,7 @@ async def delete_client(session: AsyncSession, client_id: int):
             print(f"Client with ID {client_id} not found.")
             return None
 
-        await session.execute(delete(ClientBundle).where(ClientBundle.client_id == client_id))
+        await session.execute(delete(ClientProduct).where(ClientProduct.client_id == client_id))
 
         await session.delete(client_obj)
         await session.commit()
@@ -129,26 +184,26 @@ async def delete_client(session: AsyncSession, client_id: int):
         return None
 
 
-async def delete_bundle(session: AsyncSession, bundle_id: int):
+async def delete_product(session: AsyncSession, product_id: int):
     try:
-        # Fetch the bundle object
-        bundle = await session.execute(select(Bundle).filter_by(bundle_id=bundle_id))
-        bundle_obj = bundle.scalar()
+        # Fetch the product object
+        product = await session.execute(select(Product).filter_by(product_id=product_id))
+        product_obj = product.scalar()
 
-        if not bundle_obj:
-            print(f"Bundle with ID {bundle_id} not found.")
+        if not product_obj:
+            print(f"Product with ID {product_id} not found.")
             return None
 
-        await session.execute(delete(BundleChannel).where(BundleChannel.bundle_id == bundle_id))
+        await session.execute(delete(ProductChannel).where(ProductChannel.product_id == product_id))
 
-        await session.execute(delete(ClientBundle).where(ClientBundle.bundle_id == bundle_id))
+        await session.execute(delete(ClientProduct).where(ClientProduct.product_id == product_id))
 
-        await session.delete(bundle_obj)
+        await session.delete(product_obj)
 
         await session.commit()
 
-        print(f"Deleted Bundle with ID {bundle_id}.")
-        return bundle_obj
+        print(f"Deleted Product with ID {product_id}.")
+        return product_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")
@@ -173,41 +228,57 @@ async def delete_channel(session: AsyncSession, channel_id: int):
         return None
 
 
-async def delete_client_bundle(session: AsyncSession, client_id: int, bundle_id: int):
+async def delete_client_product(session: AsyncSession, client_id: int, product_id: int):
     try:
-        client_bundle = await session.execute(
-            select(ClientBundle).filter_by(client_id=client_id, bundle_id=bundle_id)
+        client_product = await session.execute(
+            select(ClientProduct).filter_by(client_id=client_id, product_id=product_id)
         )
-        client_bundle_obj = client_bundle.scalar()
-        if not client_bundle_obj:
-            print(f"ClientBundle with client_id={client_id} and bundle_id={bundle_id} not found.")
+        client_product_obj = client_product.scalar()
+        if not client_product_obj:
+            print(f"ClientProduct with client_id={client_id} and product_id={product_id} not found.")
             return None
 
-        await session.delete(client_bundle_obj)
+        await session.delete(client_product_obj)
         await session.commit()
-        print(f"Removed Bundle {bundle_id} from Client {client_id}.")
-        return client_bundle_obj
+        print(f"Removed Product {product_id} from Client {client_id}.")
+        return client_product_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")
         return None
 
 
-async def delete_channel_from_bundle(session: AsyncSession, bundle_id: int, channel_id: int):
+async def delete_channel_from_product(session: AsyncSession, product_id: int, channel_id: int):
     try:
-        bundle_channel = await session.execute(
-            select(BundleChannel).filter_by(bundle_id=bundle_id, channel_id=channel_id)
+        product_channel = await session.execute(
+            select(ProductChannel).filter_by(product_id=product_id, channel_id=channel_id)
         )
-        bundle_channel_obj = bundle_channel.scalar()
-        if not bundle_channel_obj:
-            print(f"BundleChannel with bundle_id={bundle_id} and channel_id={channel_id} not found.")
+        product_channel_obj = product_channel.scalar()
+        if not product_channel_obj:
+            print(f"ProductChannel with product_id={product_id} and channel_id={channel_id} not found.")
             return None
 
-        await session.delete(bundle_channel_obj)
+        await session.delete(product_channel_obj)
         await session.commit()
-        print(f"Removed Channel {channel_id} from Bundle {bundle_id}.")
-        return bundle_channel_obj
+        print(f"Removed Channel {channel_id} from Product {product_id}.")
+        return product_channel_obj
     except Exception as ex:
         await session.rollback()
         print(f"Unexpected error: {ex}")
         return None
+
+
+async def create_domain(session: AsyncSession, title: Dict[str, str], descr: Dict[str, str]):
+    try:
+        new_domain = Domain(domain_title=title, domain_descr=descr)
+        session.add(new_domain)
+        await session.commit()
+        return new_domain
+    except IntegrityError as ex:
+        await session.rollback()
+        print(f"IntegrityError: {ex}")
+        raise ex
+    except Exception as ex:
+        print(f"Unexpected error: {ex}")
+        await session.rollback()
+        raise ex

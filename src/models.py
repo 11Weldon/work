@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from sqlalchemy import String, Integer, Column, ForeignKey
+from sqlalchemy import String, Integer, Column, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from database import Base
 from sqlalchemy.orm import Mapped, mapped_column
@@ -16,48 +16,64 @@ class Client(Base):
     client_balance: Mapped[int] = mapped_column(nullable=False)
 
 
-class ClientBundle(Base):
-    __tablename__ = 'ClientBundle'
+class ClientProduct(Base):
+    __tablename__ = 'ClientProduct'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     client_id = Column(Integer, ForeignKey('Client.client_id'))
-    bundle_id = Column(Integer, ForeignKey('Bundle.bundle_id'))
+    product_id = Column(Integer, ForeignKey('Product.product_id'))
 
-    client = relationship('Client', backref='client_bundles')
-    bundle = relationship('Bundle', backref='client_bundles')
-
-    @classmethod
-    def link_client_to_bundle(cls, session, client_id, bundle_id):
-        client_bundle = cls(client_id=client_id, bundle_id=bundle_id)
-        session.add(client_bundle)
-        return client_bundle
+    client = relationship('Client', backref='client_products')
+    product = relationship('Product', backref='client_products')
 
 
-class Bundle(Base):
-    __tablename__ = 'Bundle'
+class Product(Base):
+    __tablename__ = 'Product'
 
-    bundle_id = Column(Integer, primary_key=True)
-    bundle_title = Column(String(200), nullable=False)
+    product_id = Column(Integer, primary_key=True)
+    product_title = Column(String(200), nullable=False)
 
-    channels = relationship('Channel', secondary='BundleChannel', backref='bundles')
+    channels = relationship('Channel', secondary='ProductChannel', backref='products')
 
 
 class Channel(Base):
     __tablename__ = 'Channel'
 
-    channel_id = Column(Integer, primary_key=True)
+    channel_id = Column(Integer, autoincrement=True, primary_key=True)
     channel_title = Column(String(200), nullable=False)
-    bundle_id = Column(Integer, ForeignKey('Bundle.bundle_id'))
+    synopsis_short = Column(JSON)
+    synopsis_long = Column(JSON)
+    keywords = Column(JSON)
+    audio = Column(JSON)
 
-    bundle = relationship('Bundle', back_populates='channels')
+    product_id = Column(Integer, ForeignKey('Product.product_id'))
+    product = relationship('Product', back_populates='channels')
 
 
-class BundleChannel(Base):
-    __tablename__ = 'BundleChannel'
+class ProductChannel(Base):
+    __tablename__ = 'ProductChannel'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    bundle_id = Column(Integer, ForeignKey('Bundle.bundle_id'))
+    product_id = Column(Integer, ForeignKey('Product.product_id'))
     channel_id = Column(Integer, ForeignKey('Channel.channel_id'))
 
-    bundle = relationship('Bundle', backref='bundle_channels')
-    channel = relationship('Channel', backref='bundle_channels')
+    product = relationship('Product', backref='product_channels')
+    channel = relationship('Channel', backref='product_channels')
+
+
+class Domain(Base):
+    __tablename__ = 'Domain'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    domain_title = Column(JSON)
+    domain_descr = Column(JSON)
+
+
+class ChannelMapping(Base):
+    __tablename__ = 'channel_mapping'
+
+    id = Column(Integer, primary_key=True, index=True)
+    channel_id = Column(Integer)
+    target_id = Column(Integer)
+    type = Column(String)
+    mapped = Column(String)

@@ -6,22 +6,22 @@
       <li v-for="client in clients" :key="client.id" class="client-item">
         Client
         ID: {{ client.id }} | Name: {{ client.name }} | Balance: {{ client.balance }}
-        <ul class="client-bundles-list">
+        <ul class="client-products-list">
           _____________________________________________
-          <li v-for="bundle in client.bundles" :key="bundle.id" class="client-bundle-item">
-            ID: {{ bundle.id }} | Title: {{ bundle.title }}
-            <button class="action-button delete-bundle" @click="removeBundleFromClient(client.id, bundle.id)">Remove Bundle</button>
+          <li v-for="product in client.products" :key="product.id" class="client-product-item">
+            ID: {{ product.id }} | Title: {{ product.title }}
+            <button class="action-button delete-product" @click="removeProductFromClient(client.id, product.id)">Remove Product</button>
           </li>
         </ul>
-        <div class="add-bundle-form">
-          <form @submit.prevent="addBundleToClient(client.id)">
-            <h3>Add Bundle to Client</h3>
-            <select v-model="client.selectedBundleId" class="bundle-select">
-              <option v-for="bundle in availableBundles" :key="bundle.id" :value="bundle.id">
-                ID: {{ bundle.id }} | Title: {{ bundle.title }}
+        <div class="add-product-form">
+          <form @submit.prevent="addProductToClient(client.id)">
+            <h3>Add Product to Client</h3>
+            <select v-model="client.selectedProductId" class="product-select">
+              <option v-for="product in availableProducts" :key="product.id" :value="product.id">
+                ID: {{ product.id }} | Title: {{ product.title }}
               </option>
             </select>
-            <button type="submit" class="action-button">Add Bundle</button>
+            <button type="submit" class="action-button">Add Product</button>
           </form>
         </div>
       </li>
@@ -49,7 +49,7 @@ export default {
         id: null,
         balance: null
       },
-      availableBundles: []
+      availableProducts: []
     };
   },
   methods: {
@@ -58,7 +58,7 @@ export default {
         const response = await axios.get('http://localhost:8000/clients/');
         this.clients = response.data.map(client => ({
           ...client,
-          selectedBundleId: null // Add selectedBundleId field for each client
+          selectedProductId: null // Add selectedProductId field for each client
         }));
       } catch (error) {
         console.error('Error loading clients:', error);
@@ -68,41 +68,41 @@ export default {
       try {
         const response = await axios.post('http://localhost:8000/client/', this.newClient);
         console.log('Added client:', response.data);
-        this.clients.push({...response.data, selectedBundleId: null});
+        this.clients.push({...response.data, selectedProductId: null});
         this.newClient = {name: '', id: null, balance: null};
       } catch (error) {
         console.error('Error adding client:', error);
       }
     },
-    async loadAvailableBundles() {
+    async loadAvailableProducts() {
       try {
-        const response = await axios.get('http://localhost:8000/bundles/');
-        this.availableBundles = response.data;
+        const response = await axios.get('http://localhost:8000/products/');
+        this.availableProducts = response.data;
       } catch (error) {
-        console.error('Error loading available bundles:', error);
+        console.error('Error loading available products:', error);
       }
     },
-    async addBundleToClient(clientId) {
+    async addProductToClient(clientId) {
       try {
-        const selectedBundleId = this.clients.find(c => c.id === clientId).selectedBundleId;
-        await axios.post(`http://localhost:8000/client/${clientId}/bundles/${selectedBundleId}/`);
+        const selectedProductId = this.clients.find(c => c.id === clientId).selectedProductId;
+        await axios.post(`http://localhost:8000/client/${clientId}/products/${selectedProductId}/`);
         await this.loadClients();
       } catch (error) {
-        console.error('Error assigning bundle to client:', error);
+        console.error('Error assigning product to client:', error);
       }
     },
-    async removeBundleFromClient(clientId, bundleId) {
+    async removeProductFromClient(clientId, productId) {
       try {
-        await axios.delete(`http://localhost:8000/client/${clientId}/bundles/${bundleId}/`);
+        await axios.delete(`http://localhost:8000/client/${clientId}/products/${productId}/`);
         await this.loadClients();
       } catch (error) {
-        console.error('Error removing bundle from client:', error);
+        console.error('Error removing product from client:', error);
       }
     }
   },
   mounted() {
     this.loadClients();
-    this.loadAvailableBundles();
+    this.loadAvailableProducts();
   }
 };
 </script>
@@ -121,20 +121,20 @@ export default {
   margin-right: 50%;
 }
 
-.client-bundles-list {
+.client-products-list {
   list-style-type: none;
   padding: 0;
   margin-top: 5px;
 }
 
-.client-bundle-item {
+.client-product-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
 }
 
-.add-bundle-form {
+.add-product-form {
   margin-top: 10px;
 }
 
@@ -156,11 +156,11 @@ export default {
   background-color: #0056b3;
 }
 
-.delete-bundle {
+.delete-product {
   background-color: #dc3545;
 }
 
-.delete-bundle:hover {
+.delete-product:hover {
   background-color: #c82333;
 }
 
@@ -176,7 +176,7 @@ export default {
   background-color: #218838;
 }
 
-.bundle-select {
+.product-select {
   margin-right: 10px;
 }
 </style>

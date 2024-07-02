@@ -23,6 +23,10 @@ settings = Settings(
     DB_PASS="mysecretpassword",
     DB_NAME="postgres"
 )
-
-
-
+# settings = Settings(
+#     DB_HOST="localhost",
+#     DB_PORT=5432,
+#     DB_USER="postgres",
+#     DB_PASS="password",
+#     DB_NAME="postgres"
+# )

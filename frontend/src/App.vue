@@ -6,7 +6,7 @@
     <nav>
       <router-link to="/clients">Clients</router-link> |
       <router-link to="/channels">Channels</router-link> |
-      <router-link to="/bundles">Bundles</router-link>
+      <router-link to="/products">Products</router-link>
     </nav>
 
     <!-- Router View -->

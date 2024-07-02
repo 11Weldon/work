@@ -3,13 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
 import Clients from './components/Clients.vue';
 import Channels from "@/components/Channels.vue";
-import Bundles from "@/components/Bundles.vue";
+import Products from "@/components/Products.vue";
 
 const routes = [
     { path: '/', redirect: '/clients' },
     { path: '/clients', component: Clients },
     { path: '/channels', component: Channels },
-    { path: '/bundles', component: Bundles }
+    { path: '/products', component: Products }
 ];
 
 const router = createRouter({

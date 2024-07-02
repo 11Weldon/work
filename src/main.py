@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 import orm
-from schema import ClientSchema, BundleSchema, ChannelSchema, BundleWithChannelsSchema, ClientWithBundlesSchema
+from schema import ClientSchema, ProductSchema, ChannelSchema, ProductWithChannelsSchema, ClientWithProductsSchema, \
+    ServiceIdsSchema, DomainSchema, ChannelMappingSchema
 from database import get_db
 
 
@@ -31,11 +32,11 @@ async def get_cli(session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/bundle/", response_model=list[BundleSchema])
-async def get_bundle(session: AsyncSession = Depends(get_db)):
+@app.get("/product/", response_model=list[ProductSchema])
+async def get_product(session: AsyncSession = Depends(get_db)):
     try:
-        bundle = await orm.get_bundle(session)
-        return [BundleSchema(title=t.bundle_title, id=t.bundle_id) for t in bundle]
+        product = await orm.get_product(session)
+        return [ProductSchema(title=t.product_title, id=t.product_id) for t in product]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -49,31 +50,48 @@ async def get_channel(session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/bundles/", response_model=list[BundleWithChannelsSchema])
-async def get_all_bundles_with_channels_route(session: AsyncSession = Depends(get_db)):
+@app.get("/products/", response_model=list[ProductWithChannelsSchema])
+async def get_all_products_with_channels_route(session: AsyncSession = Depends(get_db)):
     try:
-        bundles = await orm.get_all_bundles_with_channels(session)
+        products = await orm.get_all_products_with_channels(session)
         return [{
-            "id": t.bundle_id,
-            "title": t.bundle_title,
+            "id": t.product_id,
+            "title": t.product_title,
             "channels": [{"id": f.channel_id, "title": f.channel_title} for f in t.channels]
-        } for t in bundles]
+        } for t in products]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/clients/", response_model=list[ClientWithBundlesSchema])
-async def get_all_clients_with_bundles_route(session: AsyncSession = Depends(get_db)):
+@app.get("/clients/", response_model=list[ClientWithProductsSchema])
+async def get_all_clients_with_products_route(session: AsyncSession = Depends(get_db)):
     try:
-        clients = await orm.get_all_client_bundles(session)
+        clients = await orm.get_all_client_products(session)
         return [{
             "id": c.client_id,
             "name": c.client_name,
             "balance": c.client_balance,
-            "bundles": [{"id": ct.bundle.bundle_id, "title": ct.bundle.bundle_title} for ct in c.client_bundles]
+            "products": [{"id": ct.product.product_id, "title": ct.product.product_title} for ct in c.client_products]
         } for c in clients]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/op_facade/chnMgmt/AddChannelMapping")
+async def add_channel_mapping_endpoint(mapping_data: ChannelMappingSchema, session: AsyncSession = Depends(get_db)):
+    try:
+        result = await orm.add_channel_mapping(session,
+                                               channelId=mapping_data.channelId,
+                                               targetId=mapping_data.targetId,
+                                               type=mapping_data.type,
+                                               mapped=mapping_data.mapped)
+        return result
+    except IntegrityError as ex:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
+    except Exception as ex:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(ex))
 
 
 @app.post("/client/")
@@ -93,9 +111,14 @@ async def add_cli(client: ClientSchema, session: AsyncSession = Depends(get_db))
 @app.post("/channel/")
 async def add_channel(channel: ChannelSchema, session: AsyncSession = Depends(get_db)):
     try:
-        channel = await orm.add_func(session, channel.title, channel.id)
+        new_channel = await orm.add_channel(session,
+                                            channel.title,
+                                            channel.synopsis_short,
+                                            channel.synopsis_long,
+                                            channel.keywords,
+                                            channel.audio)
         await session.commit()
-        return channel
+        return {"result": new_channel.channel_id}
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -104,12 +127,12 @@ async def add_channel(channel: ChannelSchema, session: AsyncSession = Depends(ge
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/bundle/")
-async def add_bundle(bundle: BundleSchema, session: AsyncSession = Depends(get_db)):
+@app.post("/product/")
+async def add_product(product: ProductSchema, session: AsyncSession = Depends(get_db)):
     try:
-        bundles = await orm.add_bundle(session, bundle.title, bundle.id)
+        products = await orm.add_product(session, product.title, product.id)
         await session.commit()
-        return bundles
+        return products
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -118,12 +141,12 @@ async def add_bundle(bundle: BundleSchema, session: AsyncSession = Depends(get_d
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/bundle/{bundle_id}/channel/{channel_id}/")
-async def add_channel_to_bundle(bundle_id: int, channel_id: int, session: AsyncSession = Depends(get_db)):
+@app.post("/product/{product_id}/channel/{channel_id}/")
+async def add_channel_to_product(product_id: int, channel_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        new_bundle_channel = await orm.add_channel_to_bundle(session, bundle_id, channel_id)
+        new_product_channel = await orm.add_channel_to_product1(session, product_id, channel_id)
         await session.commit()
-        return new_bundle_channel
+        return new_product_channel
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -132,14 +155,42 @@ async def add_channel_to_bundle(bundle_id: int, channel_id: int, session: AsyncS
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@app.post("/client/{client_id}/bundles/{bundle_id}/")
-async def add_client_bundle(client_id: int, bundle_id: int, session: AsyncSession = Depends(get_db)):
+@app.post("/prodMgmt/SetGroupProductServices/{prod_id}")
+async def add_services_to_group_product(prod_id: int, service_ids: ServiceIdsSchema,
+                                        session: AsyncSession = Depends(get_db)):
     try:
-        new_client_bundle = await orm.add_client_bundle(session, client_id, bundle_id)
-        if new_client_bundle:
-            return {"message": f"Bundle {bundle_id} added to client {client_id} successfully."}
+        result = await orm.add_channel_to_product(session, prod_id, service_ids.Service_ids)
+        return result
+    except IntegrityError as ex:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
+    except Exception as ex:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@app.post("/op_facade/domMgmt/CreateDomain")
+async def create_domain(domain_data: DomainSchema, session: AsyncSession = Depends(get_db)):
+    try:
+
+        new_domain = await orm.create_domain(session, domain_data.title, domain_data.descr)
+        return {"message": f"Domain {new_domain.title} created successfully."}
+    except IntegrityError as ex:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
+    except Exception as ex:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@app.post("/client/{client_id}/products/{product_id}/")
+async def add_client_product(client_id: int, product_id: int, session: AsyncSession = Depends(get_db)):
+    try:
+        new_client_product = await orm.add_client_product(session, client_id, product_id)
+        if new_client_product:
+            return {"message": f"Product {product_id} added to client {client_id} successfully."}
         else:
-            raise HTTPException(status_code=400, detail=f"Failed to add bundle")
+            raise HTTPException(status_code=400, detail=f"Failed to add product")
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -160,14 +211,14 @@ async def delete_client_route(client_id: int, session: AsyncSession = Depends(ge
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/bundle/{bundle_id}/")
-async def delete_bundle_route(bundle_id: int, session: AsyncSession = Depends(get_db)):
+@app.delete("/product/{product_id}/")
+async def delete_product_route(product_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        deleted_bundle = await orm.delete_bundle(session, bundle_id)
-        if deleted_bundle:
-            return {"message": f"Deleted Bundle with ID {bundle_id}."}
+        deleted_product = await orm.delete_product(session, product_id)
+        if deleted_product:
+            return {"message": f"Deleted Product with ID {product_id}."}
         else:
-            raise HTTPException(status_code=404, detail=f"Bundle with ID {bundle_id} not found.")
+            raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -184,30 +235,30 @@ async def delete_channel_route(channel_id: int, session: AsyncSession = Depends(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/client/{client_id}/bundles/{bundle_id}/")
-async def delete_client_bundle_route(client_id: int, bundle_id: int, session: AsyncSession = Depends(get_db)):
+@app.delete("/client/{client_id}/products/{product_id}/")
+async def delete_client_product_route(client_id: int, product_id: int, session: AsyncSession = Depends(get_db)):
     try:
-        removed_client_bundle = await orm.delete_client_bundle(session, client_id, bundle_id)
-        if removed_client_bundle:
-            return {"message": f"Removed Bundle {bundle_id} from Client {client_id}."}
+        removed_client_product = await orm.delete_client_product(session, client_id, product_id)
+        if removed_client_product:
+            return {"message": f"Removed Product {product_id} from Client {client_id}."}
         else:
             raise HTTPException(status_code=404,
-                                detail=f"ClientBundle with client_id={client_id} and bundle_id={bundle_id} not "
+                                detail=f"ClientProduct with client_id={client_id} and product_id={product_id} not "
                                        f"found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.delete("/bundle/{bundle_id}/channel/{channel_id}/")
-async def delete_channel_from_bundle_route(bundle_id: int, channel_id: int,
-                                            session: AsyncSession = Depends(get_db)):
+@app.delete("/product/{product_id}/channel/{channel_id}/")
+async def delete_channel_from_product_route(product_id: int, channel_id: int,
+                                           session: AsyncSession = Depends(get_db)):
     try:
-        removed_channel_from_bundle = await orm.delete_channel_from_bundle(session, bundle_id, channel_id)
-        if removed_channel_from_bundle:
-            return {"message": f"Removed Channel {channel_id} from Bundle {bundle_id}."}
+        removed_channel_from_product = await orm.delete_channel_from_product(session, product_id, channel_id)
+        if removed_channel_from_product:
+            return {"message": f"Removed Channel {channel_id} from Product {product_id}."}
         else:
             raise HTTPException(status_code=404,
-                                detail=f"BundleChannel with bundle_id={bundle_id} and channel_id={channel_id} not found.")
+                                detail=f"ProductChannel with product_id={product_id} and channel_id={channel_id} not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
