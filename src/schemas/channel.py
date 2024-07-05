@@ -31,7 +31,7 @@ class ChannelLiveUrlsSchema(BaseModel):
 
 
 class SetGroupProductServicesRequest(BaseModel):
-    product_id: int
+    group_product_id: int
     service_ids: List[int]
 
 

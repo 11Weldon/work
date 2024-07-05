@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.models.channel import Channel, Product, ChannelProduct
+from src.models.channel import Channel, GroupProduct, ChannelGroupProduct
 
 
 async def add_channel(session: AsyncSession, channel_data):
@@ -40,19 +40,19 @@ async def set_channel_live_urls(session: AsyncSession, channel_live_urls):
         raise ex
 
 
-async def set_group_product_services(session: AsyncSession, service_ids, product_id):
+async def set_group_product_services(session: AsyncSession, service_ids, group_product_id):
     try:
         for channel_id in service_ids:
-            existing_product_channel = await session.execute(
-                select(ChannelProduct).filter_by(product_id=product_id, channel_id=channel_id)
+            existing_group_product_channel = await session.execute(
+                select(ChannelGroupProduct).filter_by(group_product_id=group_product_id, channel_id=channel_id)
             )
-            if existing_product_channel.scalar():
-                print(f"ProductChannel already exists for product_id={product_id} and channel_id={channel_id}")
+            if existing_group_product_channel.scalar():
+                print(f"GroupProductChannel already exists for group_product_id={group_product_id} and channel_id={channel_id}")
                 continue
 
-            new_product_channel = ChannelProduct(product_id=product_id, channel_id=channel_id)
-            session.add(new_product_channel)
-            print(f"Added new ProductChannel for product_id={product_id} and channel_id={channel_id}")
+            new_group_product_channel = ChannelGroupProduct(group_product_id=group_product_id, channel_id=channel_id)
+            session.add(new_group_product_channel)
+            print(f"Added new GroupProductChannel for group_product_id={group_product_id} and channel_id={channel_id}")
 
         await session.commit()
         return {"result": 0}
@@ -66,12 +66,12 @@ async def set_group_product_services(session: AsyncSession, service_ids, product
         raise ex
 
 
-async def add_product(session: AsyncSession, product_data):
+async def add_group_product(session: AsyncSession, group_product_data):
     try:
-        new_product = Product(**product_data.dict())
-        session.add(new_product)
+        new_group_product = GroupProduct(**group_product_data.dict())
+        session.add(new_group_product)
         await session.commit()
-        return {"response": new_product.product_id}
+        return {"response": new_group_product.group_product_id}
     except IntegrityError as ex:
         await session.rollback()
         raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
@@ -80,8 +80,8 @@ async def add_product(session: AsyncSession, product_data):
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-async def get_product_with_channels(session: AsyncSession):
-    stmt = select(Product).options(selectinload(Product.channels))
+async def get_group_product_with_channels(session: AsyncSession):
+    stmt = select(GroupProduct).options(selectinload(GroupProduct.channels))
     result = await session.execute(stmt)
     return [t for t in result.scalars().all()]
 

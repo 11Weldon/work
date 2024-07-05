@@ -59,16 +59,16 @@ async def get_profiles_route(session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@household_router.post("/op_facade/houshMgmt/CreateProfile")
-async def create_profile_and_set_household_products_route(profiles_data: HouseholdProducts,
-                                                          session: AsyncSession = Depends(get_db)):
-    try:
-        new_household_products = await household.set_household_products(session, profiles_data)
-        await session.commit()
-        return {"message": f"Profiles added successfully {new_household_products=}"}
-    except Exception as e:
-        await session.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to create household: {str(e)}")
+# @household_router.post("/op_facade/houshMgmt/CreateProfile")
+# async def create_profile_and_set_household_products_route(profiles_data: HouseholdProducts,
+#                                                           session: AsyncSession = Depends(get_db)):
+#     try:
+#         new_household_products = await household.set_household_products(session, profiles_data)
+#         await session.commit()
+#         return {"message": f"Profiles added successfully {new_household_products=}"}
+#     except Exception as e:
+#         await session.rollback()
+#         raise HTTPException(status_code=500, detail=f"Failed to create household: {str(e)}")
 
 
 @household_router.post("/op_facade/prodMgmt/SetHouseholdProds")

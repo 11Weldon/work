@@ -49,7 +49,7 @@ async def set_group_product_services_route(
         session: AsyncSession = Depends(get_db)
 ):
     try:
-        result = await channel.set_group_product_services(session, group_product_services.service_ids, group_product_services.product_id)
+        result = await channel.set_group_product_services(session, group_product_services.service_ids, group_product_services.group_product_id)
         return result
     except IntegrityError as ex:
         await session.rollback()
@@ -60,24 +60,24 @@ async def set_group_product_services_route(
 
 
 @channel_router.post("/op_facade/chnMgmt/CreateProduct")
-async def create_product(product_data: ProductSchema,
+async def create_group_product(group_product_data: ProductSchema,
                          session: AsyncSession = Depends(get_db)
                          ):
     try:
-        new_product = await channel.add_product(session, product_data)
-        return new_product
+        new_group_product = await channel.add_group_product(session, group_product_data)
+        return new_group_product
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
 
 
 @channel_router.get("/op_facade/prodMgmt/ProductsWithChannels")
-async def get_product_with_channels_route(session: AsyncSession = Depends(get_db)):
+async def get_group_product_with_channels_route(session: AsyncSession = Depends(get_db)):
     try:
-        product_with_channels = await channel.get_product_with_channels(session)
-        if not product_with_channels:
+        group_product_with_channels = await channel.get_group_product_with_channels(session)
+        if not group_product_with_channels:
             raise HTTPException(status_code=404, detail=f"Product  not found")
 
-        return product_with_channels
+        return group_product_with_channels
 
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))

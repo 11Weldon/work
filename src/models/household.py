@@ -1,9 +1,7 @@
-from sqlalchemy import Column, Integer, String, JSON, Boolean, ForeignKey, Table
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, JSON, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from src.database import Base
-from src.models.channel import Product
 
 
 class UserProfile(Base):
@@ -41,7 +39,7 @@ class Household(Base):
     user_profile = relationship("UserProfile", back_populates="households")
 
     profiles = relationship("Profile", secondary="household_profile", backref="households")
-    products = relationship("Product", secondary="household_product", backref="households")
+    products = relationship("Products", secondary="household_product", backref="households")
 
 
 class Profile(Base):
@@ -74,7 +72,7 @@ class HouseholdProduct(Base):
 
     household_product_id = Column(Integer, primary_key=True, autoincrement=True)
     household_id = Column(Integer, ForeignKey('household.household_id'))
-    product_id = Column(Integer, ForeignKey('Product.product_id'))
+    product_id = Column(Integer, ForeignKey('Products.product_id'))
 
     household = relationship("Household", backref="household_products")
-    product = relationship("Product", backref="product_households")
+    product = relationship("Products", backref="product_households")
