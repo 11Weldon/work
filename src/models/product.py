@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, JSON, ForeignKey, Table
+from sqlalchemy import Column, Integer, JSON, ForeignKey, Table, String
 from sqlalchemy.orm import relationship
 from src.database import Base
 
@@ -7,7 +7,15 @@ class GroupProduct(Base):
     __tablename__ = 'GroupProduct'
 
     group_product_id = Column(Integer, primary_key=True, autoincrement=True)
+    external_id = Column(String(200))
+    type = Column(String(200))
+    status = Column(String(200))
+    name = Column(String(200))
     title = Column(JSON)
+    descr = Column(JSON)
+    custom = Column(JSON)
+    prices = Column(JSON)
+    image = Column(JSON)
 
     products = relationship("Products", secondary="GroupToProducts", backref="groups")
     channels = relationship('Channel', secondary='Channel_GroupProduct', backref='products')
@@ -17,7 +25,16 @@ class FeatureProduct(Base):
     __tablename__ = 'FeatureProduct'
 
     feature_product_id = Column(Integer, primary_key=True, autoincrement=True)
+    external_id = Column(String(200))
+    status = Column(String(200))
+    name = Column(String(200))
+    quota = Column(Integer)
+    valid_period = Column(Integer)
     title = Column(JSON)
+    descr = Column(JSON)
+    custom = Column(JSON)
+    prices = Column(JSON)
+    image = Column(JSON)
 
     products = relationship("Products", secondary="FeatureToProducts", backref="features")
 

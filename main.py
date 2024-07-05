@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.queries.orm import AsyncORM
-from src.router import channel, household
+from src.router import channel, household, product
 
 
 def create_fastapi_app():
@@ -21,6 +21,7 @@ app = create_fastapi_app()
 
 app.include_router(channel.channel_router)
 app.include_router(household.household_router)
+app.include_router(product.product_router)
 
 
 @app.get("/reload/")
