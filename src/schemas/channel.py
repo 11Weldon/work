@@ -2,8 +2,10 @@ from typing import Optional, Dict, List
 
 from pydantic import Field, BaseModel
 
+from src.schemas.tuned_model import TunedModel
 
-class ChannelSchema(BaseModel):
+
+class ChannelSchema(TunedModel):
     service_id: int
     name: str
     type: str
@@ -22,7 +24,7 @@ class ChannelSchema(BaseModel):
         orm_mode = True
 
 
-class ChannelLiveUrlsSchema(BaseModel):
+class ChannelLiveUrlsSchema(TunedModel):
     channel_id: int
     channel_urls: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
@@ -30,12 +32,12 @@ class ChannelLiveUrlsSchema(BaseModel):
         orm_mode = True
 
 
-class SetGroupProductServicesRequest(BaseModel):
+class SetGroupProductServicesRequest(TunedModel):
     group_product_id: int
     service_ids: List[int]
 
 
-class ProductSchema(BaseModel):
+class ProductSchema(TunedModel):
     title: Optional[Dict[str, str]] = Field(default_factory=dict)
 
     class Config:
@@ -43,7 +45,7 @@ class ProductSchema(BaseModel):
         from_attributes = True
 
 
-class ServicesList(BaseModel):
+class ServicesList(TunedModel):
     target_type: str
     target_id: int
     name: str

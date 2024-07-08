@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.queries import household
+from src.router.not_null import Omissible
 from src.schemas.household import HouseholdSchema, UserSchema, ProfileSchema, HouseholdProducts
 
 household_router = APIRouter()
@@ -39,7 +40,7 @@ async def get_users_route(session: AsyncSession = Depends(get_db)):
 
 
 @household_router.post("/op_facade/houshMgmt/CreateProfile")
-async def create_profile_route(household_id: int, profile_data: ProfileSchema,
+async def create_profile_route(household_id: Omissible[int], profile_data: ProfileSchema,
                                session: AsyncSession = Depends(get_db)):
     try:
         new_household = await household.create_profile(session, profile_data, household_id)

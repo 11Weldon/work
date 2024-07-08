@@ -1,0 +1,1332 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Your API Title",
+        "description": "This is a very cool project",
+        "version": "1.0.0",
+        "x-logo": {
+            "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+        }
+    },
+    "paths": {
+        "/op_facade/chnMgmt/CreateChannel": {
+            "post": {
+                "summary": "Create Channel",
+                "operationId": "create_channel_op_facade_chnMgmt_CreateChannel_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChannelSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/chnMgmt/Channels": {
+            "get": {
+                "summary": "Get Channels",
+                "operationId": "get_channels_op_facade_chnMgmt_Channels_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/chnMgmt/SetChannelLiveUrls": {
+            "post": {
+                "summary": "Set Channel Live Urls Route",
+                "operationId": "set_channel_live_urls_route_op_facade_chnMgmt_SetChannelLiveUrls_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChannelLiveUrlsSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/prodMgmt/SetGroupProductServices": {
+            "post": {
+                "summary": "Set Group Product Services Route",
+                "operationId": "set_group_product_services_route_op_facade_prodMgmt_SetGroupProductServices_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SetGroupProductServicesRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/chnMgmt/CreateProduct": {
+            "post": {
+                "summary": "Create Group Product",
+                "operationId": "create_group_product_op_facade_chnMgmt_CreateProduct_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/prodMgmt/ProductsWithChannels": {
+            "get": {
+                "summary": "Get Group Product With Channels Route",
+                "operationId": "get_group_product_with_channels_route_op_facade_prodMgmt_ProductsWithChannels_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/domMgmt/CreateServicesList": {
+            "post": {
+                "summary": "Create Services List Route",
+                "operationId": "create_services_list_route_op_facade_domMgmt_CreateServicesList_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ServicesList"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/houshMgmt/CreateHouseholdExt": {
+            "post": {
+                "summary": "Create Household Ext",
+                "operationId": "create_household_ext_op_facade_houshMgmt_CreateHouseholdExt_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_create_household_ext_op_facade_houshMgmt_CreateHouseholdExt_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/houshMgmt/Households/": {
+            "get": {
+                "summary": "Get Households Route",
+                "operationId": "get_households_route_op_facade_houshMgmt_Households__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/HouseholdSchema"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get Households Route Op Facade Houshmgmt Households  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/houshMgmt/Users/": {
+            "get": {
+                "summary": "Get Users Route",
+                "operationId": "get_users_route_op_facade_houshMgmt_Users__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserSchema"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get Users Route Op Facade Houshmgmt Users  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/houshMgmt/CreateProfile": {
+            "post": {
+                "summary": "Create Profile Route",
+                "operationId": "create_profile_route_op_facade_houshMgmt_CreateProfile_post",
+                "parameters": [
+                    {
+                        "name": "household_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Household Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProfileSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/houshMgmt/Profiles/": {
+            "get": {
+                "summary": "Get Profiles Route",
+                "operationId": "get_profiles_route_op_facade_houshMgmt_Profiles__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProfileSchema"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get Profiles Route Op Facade Houshmgmt Profiles  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/prodMgmt/SetHouseholdProds": {
+            "post": {
+                "summary": "Set Group Product Services Route",
+                "operationId": "set_group_product_services_route_op_facade_prodMgmt_SetHouseholdProds_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HouseholdProducts"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/prodMgmt/CreateGroupProduct": {
+            "post": {
+                "summary": "Create Group Product",
+                "operationId": "create_group_product_op_facade_prodMgmt_CreateGroupProduct_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GroupProductSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/op_facade/prodMgmt/CreateFeatureProduct": {
+            "post": {
+                "summary": "Create Feature Product",
+                "operationId": "create_feature_product_op_facade_prodMgmt_CreateFeatureProduct_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FeatureProductSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/createDevice": {
+            "post": {
+                "summary": "Create Device Router",
+                "operationId": "create_device_router_createDevice_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeviceSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reload/": {
+            "get": {
+                "summary": "Reload Db",
+                "operationId": "reload_db_reload__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_create_household_ext_op_facade_houshMgmt_CreateHouseholdExt_post": {
+                "properties": {
+                    "household_data": {
+                        "$ref": "#/components/schemas/HouseholdSchema"
+                    },
+                    "user_data": {
+                        "$ref": "#/components/schemas/UserSchema"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "household_data",
+                    "user_data"
+                ],
+                "title": "Body_create_household_ext_op_facade_houshMgmt_CreateHouseholdExt_post"
+            },
+            "ChannelLiveUrlsSchema": {
+                "properties": {
+                    "channelId": {
+                        "type": "integer",
+                        "title": "Channelid"
+                    },
+                    "channelUrls": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Channelurls"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "channelId"
+                ],
+                "title": "ChannelLiveUrlsSchema"
+            },
+            "ChannelSchema": {
+                "properties": {
+                    "serviceId": {
+                        "type": "integer",
+                        "title": "Serviceid"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "format": {
+                        "type": "integer",
+                        "title": "Format"
+                    },
+                    "mprovId": {
+                        "type": "integer",
+                        "title": "Mprovid"
+                    },
+                    "cprovId": {
+                        "type": "integer",
+                        "title": "Cprovid"
+                    },
+                    "langs": {
+                        "type": "integer",
+                        "title": "Langs"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "descr": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "items": {
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "type": "object"
+                                    },
+                                    "type": "array"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Descr"
+                    },
+                    "custom": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom"
+                    },
+                    "image": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Image"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "serviceId",
+                    "name",
+                    "type",
+                    "status",
+                    "format",
+                    "mprovId",
+                    "cprovId",
+                    "langs"
+                ],
+                "title": "ChannelSchema"
+            },
+            "DeviceSchema": {
+                "properties": {
+                    "externalId": {
+                        "type": "string",
+                        "title": "Externalid"
+                    },
+                    "descr": {
+                        "type": "string",
+                        "title": "Descr"
+                    },
+                    "name": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "externalId",
+                    "descr"
+                ],
+                "title": "DeviceSchema"
+            },
+            "FeatureProductSchema": {
+                "properties": {
+                    "externalId": {
+                        "type": "string",
+                        "title": "Externalid"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "quota": {
+                        "type": "integer",
+                        "title": "Quota"
+                    },
+                    "validPeriod": {
+                        "type": "integer",
+                        "title": "Validperiod"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "descr": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Descr"
+                    },
+                    "custom": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom"
+                    },
+                    "prices": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Prices"
+                    },
+                    "image": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Image"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "externalId",
+                    "status",
+                    "name",
+                    "quota",
+                    "validPeriod"
+                ],
+                "title": "FeatureProductSchema"
+            },
+            "GroupProductSchema": {
+                "properties": {
+                    "externalId": {
+                        "type": "string",
+                        "title": "Externalid"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "descr": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Descr"
+                    },
+                    "custom": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom"
+                    },
+                    "prices": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Prices"
+                    },
+                    "image": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Image"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "externalId",
+                    "type",
+                    "status",
+                    "name"
+                ],
+                "title": "GroupProductSchema"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "HouseholdProducts": {
+                "properties": {
+                    "householdId": {
+                        "type": "integer",
+                        "title": "Householdid"
+                    },
+                    "productIds": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Productids"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "householdId",
+                    "productIds"
+                ],
+                "title": "HouseholdProducts"
+            },
+            "HouseholdSchema": {
+                "properties": {
+                    "domain": {
+                        "type": "integer",
+                        "title": "Domain"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "accntCode": {
+                        "type": "string",
+                        "title": "Accntcode"
+                    },
+                    "localeId": {
+                        "type": "integer",
+                        "title": "Localeid"
+                    },
+                    "maxDevices": {
+                        "type": "integer",
+                        "title": "Maxdevices"
+                    },
+                    "maxUsers": {
+                        "type": "integer",
+                        "title": "Maxusers"
+                    },
+                    "maxProfiles": {
+                        "type": "integer",
+                        "title": "Maxprofiles"
+                    },
+                    "noPers": {
+                        "type": "boolean",
+                        "title": "Nopers"
+                    },
+                    "custom": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "anyOf": [
+                                        {},
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "domain",
+                    "description",
+                    "status",
+                    "accntCode",
+                    "localeId",
+                    "maxDevices",
+                    "maxUsers",
+                    "maxProfiles",
+                    "noPers"
+                ],
+                "title": "HouseholdSchema"
+            },
+            "ProductSchema": {
+                "properties": {
+                    "title": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    }
+                },
+                "type": "object",
+                "title": "ProductSchema"
+            },
+            "ProfileSchema": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "descr": {
+                        "type": "string",
+                        "title": "Descr"
+                    },
+                    "age": {
+                        "type": "integer",
+                        "title": "Age"
+                    },
+                    "pin": {
+                        "type": "integer",
+                        "title": "Pin"
+                    },
+                    "purchasePin": {
+                        "type": "integer",
+                        "title": "Purchasepin"
+                    },
+                    "custom": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom"
+                    },
+                    "image": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Image"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "type",
+                    "descr",
+                    "age",
+                    "pin",
+                    "purchasePin"
+                ],
+                "title": "ProfileSchema"
+            },
+            "ServicesList": {
+                "properties": {
+                    "targetType": {
+                        "type": "string",
+                        "title": "Targettype"
+                    },
+                    "targetId": {
+                        "type": "integer",
+                        "title": "Targetid"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "seqNum": {
+                        "type": "integer",
+                        "title": "Seqnum"
+                    },
+                    "inheritable": {
+                        "type": "boolean",
+                        "title": "Inheritable"
+                    },
+                    "locked": {
+                        "type": "boolean",
+                        "title": "Locked"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "descr": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Descr"
+                    },
+                    "entryIds": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Entryids"
+                    },
+                    "entryLsns": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Entrylsns"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "targetType",
+                    "targetId",
+                    "name",
+                    "type",
+                    "seqNum",
+                    "inheritable",
+                    "locked"
+                ],
+                "title": "ServicesList"
+            },
+            "SetGroupProductServicesRequest": {
+                "properties": {
+                    "groupProductId": {
+                        "type": "integer",
+                        "title": "Groupproductid"
+                    },
+                    "serviceIds": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Serviceids"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "groupProductId",
+                    "serviceIds"
+                ],
+                "title": "SetGroupProductServicesRequest"
+            },
+            "UserSchema": {
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "title": "Username"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "title": "Firstname"
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "title": "Lastname"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "address": {
+                        "type": "string",
+                        "title": "Address"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "title": "Phone"
+                    },
+                    "hashInit": {
+                        "type": "string",
+                        "title": "Hashinit"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "username",
+                    "password",
+                    "firstName",
+                    "lastName",
+                    "status",
+                    "address",
+                    "phone",
+                    "hashInit"
+                ],
+                "title": "UserSchema"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

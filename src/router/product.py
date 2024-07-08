@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db
-from src.queries import channel, product
+from src.queries import product
 from src.schemas.product import GroupProductSchema, FeatureProductSchema
 
 product_router = APIRouter()

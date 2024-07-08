@@ -2,8 +2,10 @@ from typing import Optional, Dict, List
 
 from pydantic import Field, BaseModel
 
+from src.schemas.tuned_model import TunedModel
 
-class GroupProductSchema(BaseModel):
+
+class GroupProductSchema(TunedModel):
     external_id: str
     type: str
     status: str
@@ -15,7 +17,7 @@ class GroupProductSchema(BaseModel):
     image: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
 
-class FeatureProductSchema(BaseModel):
+class FeatureProductSchema(TunedModel):
     external_id: str
     status: str
     name: str

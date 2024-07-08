@@ -2,8 +2,10 @@ from typing import Optional, Dict, List
 
 from pydantic import BaseModel, Field
 
+from src.schemas.tuned_model import TunedModel
 
-class UserSchema(BaseModel):
+
+class UserSchema(TunedModel):
     username: str
     password: str
     first_name: str
@@ -14,7 +16,7 @@ class UserSchema(BaseModel):
     hash_init: str
 
 
-class HouseholdSchema(BaseModel):
+class HouseholdSchema(TunedModel):
     domain: int
     description: str
     status: str
@@ -31,7 +33,7 @@ class HouseholdSchema(BaseModel):
         orm_mode = True
 
 
-class ProfileSchema(BaseModel):
+class ProfileSchema(TunedModel):
     name: str
     type: str
     descr: str
@@ -42,6 +44,6 @@ class ProfileSchema(BaseModel):
     image: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
 
-class HouseholdProducts(BaseModel):
+class HouseholdProducts(TunedModel):
     household_id: int
     product_ids: List[int]
