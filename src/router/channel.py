@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db
 from src.queries import channel
-from src.schemas.channel import ChannelSchema, ChannelLiveUrlsSchema, SetGroupProductServicesRequest, ProductSchema
-
+from src.schemas.channel import ChannelSchema, ChannelLiveUrlsSchema, SetGroupProductServicesRequest, ProductSchema, \
+    ServicesList
 
 channel_router = APIRouter()
 
@@ -49,7 +49,8 @@ async def set_group_product_services_route(
         session: AsyncSession = Depends(get_db)
 ):
     try:
-        result = await channel.set_group_product_services(session, group_product_services.service_ids, group_product_services.group_product_id)
+        result = await channel.set_group_product_services(session, group_product_services.service_ids,
+                                                          group_product_services.group_product_id)
         return result
     except IntegrityError as ex:
         await session.rollback()
@@ -61,8 +62,8 @@ async def set_group_product_services_route(
 
 @channel_router.post("/op_facade/chnMgmt/CreateProduct")
 async def create_group_product(group_product_data: ProductSchema,
-                         session: AsyncSession = Depends(get_db)
-                         ):
+                               session: AsyncSession = Depends(get_db)
+                               ):
     try:
         new_group_product = await channel.add_group_product(session, group_product_data)
         return new_group_product
@@ -79,5 +80,16 @@ async def get_group_product_with_channels_route(session: AsyncSession = Depends(
 
         return group_product_with_channels
 
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@channel_router.post("/op_facade/domMgmt/CreateServicesList")
+async def create_services_list_route(list_data: ServicesList,
+                                     session: AsyncSession = Depends(get_db)
+                                     ):
+    try:
+        new_list = await channel.create_services_list(session, list_data)
+        return new_list
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))

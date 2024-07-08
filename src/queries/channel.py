@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.models.channel import Channel, GroupProduct, ChannelGroupProduct
+from src.models.channel import Channel, GroupProduct, ChannelGroupProduct, ChannelList
 
 
 async def add_channel(session: AsyncSession, channel_data):
@@ -47,7 +47,8 @@ async def set_group_product_services(session: AsyncSession, service_ids, group_p
                 select(ChannelGroupProduct).filter_by(group_product_id=group_product_id, channel_id=channel_id)
             )
             if existing_group_product_channel.scalar():
-                print(f"GroupProductChannel already exists for group_product_id={group_product_id} and channel_id={channel_id}")
+                print(
+                    f"GroupProductChannel already exists for group_product_id={group_product_id} and channel_id={channel_id}")
                 continue
 
             new_group_product_channel = ChannelGroupProduct(group_product_id=group_product_id, channel_id=channel_id)
@@ -85,3 +86,16 @@ async def get_group_product_with_channels(session: AsyncSession):
     result = await session.execute(stmt)
     return [t for t in result.scalars().all()]
 
+
+async def create_services_list(session: AsyncSession, list_data):
+    try:
+        new_list = ChannelList(**list_data.dict())
+        session.add(new_list)
+        await session.commit()
+        return {"response": new_list.channel_list_id}
+    except IntegrityError as ex:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=f"IntegrityError: {str(ex)}")
+    except Exception as ex:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=str(ex))

@@ -41,3 +41,18 @@ class ProductSchema(BaseModel):
     class Config:
         orm_mode = True
         from_attributes = True
+
+
+class ServicesList(BaseModel):
+    target_type: str
+    target_id: int
+    name: str
+    type: str
+    seqNum: int
+    inheritable: bool
+    locked: bool
+
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
+    descr: Optional[Dict[str, str]] = Field(default_factory=dict)
+    entry_ids: Optional[List[str]] = Field(default_factory=list)
+    entry_lsns: Optional[List[int]] = Field(default_factory=list)
