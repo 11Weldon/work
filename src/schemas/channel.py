@@ -1,19 +1,20 @@
 from typing import Optional, Dict, List
 
-from pydantic import Field, BaseModel
+from pydantic import Field
 
+from src.schemas.not_null import Omissible
 from src.schemas.tuned_model import TunedModel
 
 
 class ChannelSchema(TunedModel):
-    service_id: int
-    name: str
-    type: str
-    status: str
-    format: int
-    mProv_id: int
-    cProv_id: int
-    langs: int
+    service_id: Omissible[int]
+    name: Omissible[str]
+    type: Omissible[str]
+    status: Omissible[str]
+    format: Omissible[int]
+    mProv_id: Omissible[int]
+    cProv_id: Omissible[int]
+    langs: Omissible[int]
 
     title: Optional[Dict[str, str]] = Field(default_factory=dict)
     descr: Optional[Dict[str, List[Dict[str, str]]]] = Field(default_factory=dict)
@@ -25,7 +26,7 @@ class ChannelSchema(TunedModel):
 
 
 class ChannelLiveUrlsSchema(TunedModel):
-    channel_id: int
+    channel_id: Omissible[int]
     channel_urls: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
     class Config:
@@ -33,8 +34,8 @@ class ChannelLiveUrlsSchema(TunedModel):
 
 
 class SetGroupProductServicesRequest(TunedModel):
-    group_product_id: int
-    service_ids: List[int]
+    group_product_id: Omissible[int]
+    service_ids: Omissible[List[int]]
 
 
 class ProductSchema(TunedModel):
@@ -46,13 +47,13 @@ class ProductSchema(TunedModel):
 
 
 class ServicesList(TunedModel):
-    target_type: str
-    target_id: int
-    name: str
-    type: str
-    seqNum: int
-    inheritable: bool
-    locked: bool
+    target_type: Omissible[str]
+    target_id: Omissible[int]
+    name: Omissible[str]
+    type: Omissible[str]
+    seqNum: Omissible[int]
+    inheritable: Omissible[bool]
+    locked: Omissible[bool]
 
     title: Optional[Dict[str, str]] = Field(default_factory=dict)
     descr: Optional[Dict[str, str]] = Field(default_factory=dict)
