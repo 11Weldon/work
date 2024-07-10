@@ -1,20 +1,25 @@
 <template>
   <div id="app">
-    <createChannel />
+    <h1>Client Management System</h1>
+
+    <!-- Navigation Links -->
+    <nav>
+      <router-link to="/household">Households</router-link> |
+      <router-link to="/channels">Channels</router-link> |
+      <router-link to="/products">Products</router-link>
+    </nav>
+
+    <!-- Router View -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import createChannel from '@/components/Сhannel.vue'; // Проверьте путь импорта
-
 export default {
   name: 'App',
-  components: {
-    createChannel
-  }
 };
 </script>
 
 <style>
-/* Ваши стили по умолчанию */
+/* добавьте стили по вашему усмотрению */
 </style>

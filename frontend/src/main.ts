@@ -1,14 +1,22 @@
-import './assets/main.css'
+import { createApp } from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import App from './App.vue';
+import Households from './components/Household.vue';
+import Channels from './components/Сhannel.vue';
+import Products from './components/Product.vue';
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+const routes = [
+    { path: '/', redirect: '/household' },
+    { path: '/household', component: Households },
+    { path: '/channels', component: Channels },
+    { path: '/products', component: Products }
+];
 
-import App from '@/App.vue'
-import router from './router'
+const router = createRouter({
+    history: createWebHistory(),
+    routes
+});
 
-const app = createApp(App)
-
-app.use(createPinia())
-app.use(router)
-
-app.mount('#app')
+const app = createApp(App);
+app.use(router);
+app.mount('#app');

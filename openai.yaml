@@ -478,6 +478,42 @@
                 }
             }
         },
+        "/op_facade/prodMgmt/CreateProduct": {
+            "post": {
+                "summary": "Create Product",
+                "operationId": "create_product_op_facade_prodMgmt_CreateProduct_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/createDevice": {
             "post": {
                 "summary": "Create Device Router",
