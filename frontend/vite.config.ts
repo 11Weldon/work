@@ -20,5 +20,9 @@ export default defineConfig({
       '@api': path.resolve(__dirname, '../frontend/src/api'),
       '@runtime': path.resolve(__dirname, '../frontend/runtime'),
     }
-  }
+  },
+  // server: {
+  //   host: 'pleasework.local', // Укажите желаемый локальный хост
+  //   port: 8080, // Укажите желаемый порт
+  // },
 })

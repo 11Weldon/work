@@ -69,7 +69,7 @@
 
         <div class="form-group">
           <label for="channelUrls">Channel URLs:</label>
-          <input type="text" id="channelUrls" v-model.lazy="channelLiveUrlsSchema.channelUrls">
+          <input type="text" id="channelUrls" v-model.lazy="channelUrls">
         </div>
 
         <button type="submit" class="submit-button">Set Live URLs</button>
@@ -87,7 +87,7 @@
 
         <div class="form-group">
           <label for="serviceIds">Service IDs (comma-separated):</label>
-          <input type="text" id="serviceIds" v-model="setGroupProductServicesRequest.serviceIds" required>
+          <input type="text" id="serviceIds" v-model="serviceIds" required>
         </div>
 
         <button type="submit" class="submit-button">Add Channels to Product</button>
@@ -177,6 +177,8 @@ export default defineComponent({
       setGroupProductServicesRequest: {} as SetGroupProductServicesRequest,
       servicesList: {} as ServicesList,
       channels: [] as ChannelSchema[],
+      serviceIds: "",
+      channelUrls:"",
     };
   },
   mounted() {
@@ -209,7 +211,7 @@ export default defineComponent({
     async setChannelLiveUrls() {
       try {
         console.log('Submitting setChannelLiveUrls request:', this.channelLiveUrlsSchema);
-        this.channelLiveUrlsSchema.channelUrls = JSON.parse(this.channelLiveUrlsSchema.channelUrls);
+        this.channelLiveUrlsSchema.channelUrls = JSON.parse(this.channelUrls);
         const api = new DefaultApi();
         const response = await api.setChannelLiveUrlsRouteOpFacadeChnMgmtSetChannelLiveUrlsPost({
           channelLiveUrlsSchema: this.channelLiveUrlsSchema,
@@ -223,7 +225,7 @@ export default defineComponent({
     async setGroupProductServices() {
       try {
         console.log('Submitting setGroupProductServicesRequest request:', this.setGroupProductServicesRequest);
-        this.setGroupProductServicesRequest.serviceIds = this.setGroupProductServicesRequest.serviceIds.split(',')
+        this.setGroupProductServicesRequest.serviceIds = this.serviceIds.split(',')
             .map((item: string) => Number(item.trim()));
         const api = new DefaultApi();
         const response = await api.setGroupProductServicesRouteOpFacadeProdMgmtSetGroupProductServicesPost({

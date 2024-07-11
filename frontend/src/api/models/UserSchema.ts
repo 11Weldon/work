@@ -19,6 +19,7 @@ import { mapValues } from '../runtime';
  * @interface UserSchema
  */
 export interface UserSchema {
+    user_id: string;
     /**
      * 
      * @type {string}
@@ -93,7 +94,7 @@ export function UserSchemaFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         return json;
     }
     return {
-        
+        'user_id': json['user_id'],
         'username': json['username'],
         'password': json['password'],
         'firstName': json['firstName'],

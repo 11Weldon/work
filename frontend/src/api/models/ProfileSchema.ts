@@ -19,6 +19,7 @@ import { mapValues } from '../runtime';
  * @interface ProfileSchema
  */
 export interface ProfileSchema {
+    profile_id: string;
     /**
      * 
      * @type {string}
@@ -91,7 +92,8 @@ export function ProfileSchemaFromJSONTyped(json: any, ignoreDiscriminator: boole
         return json;
     }
     return {
-        
+
+        'profile_id': json['profile_id'],
         'name': json['name'],
         'type': json['type'],
         'descr': json['descr'],

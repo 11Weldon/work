@@ -108,7 +108,7 @@
 
         <div class="form-group">
           <label for="productIds">Product IDs (comma-separated):</label>
-          <input type="text" id="productIds" v-model="householdProducts.productIds" required>
+          <input type="text" id="productIds" v-model.lazy="productIds" required>
         </div>
 
         <button type="submit" class="submit-button">Set Household Products</button>
@@ -161,6 +161,7 @@ export default defineComponent({
       households: [] as HouseholdSchema[],
       users: [] as UserSchema[],
       profiles: [] as ProfileSchema[],
+      productIds: "",
     };
   },
   mounted() {
@@ -248,7 +249,7 @@ export default defineComponent({
         console.log('Submitting set household products request:', this.householdProducts);
 
         const api = new DefaultApi();
-        this.householdProducts.productIds = this.householdProducts.productIds.split(',')
+        this.householdProducts.productIds = this.productIds.split(',')
             .map((item: string) => Number(item.trim()));
 
         const response = await api.setGroupProductServicesRouteOpFacadeProdMgmtSetHouseholdProdsPost({

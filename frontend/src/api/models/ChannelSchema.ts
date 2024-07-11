@@ -19,6 +19,7 @@ import { mapValues } from '../runtime';
  * @interface ChannelSchema
  */
 export interface ChannelSchema {
+    channel_id: string;
     /**
      * 
      * @type {number}
@@ -117,7 +118,7 @@ export function ChannelSchemaFromJSONTyped(json: any, ignoreDiscriminator: boole
         return json;
     }
     return {
-        
+        'channel_id': json['channelId'],
         'serviceId': json['serviceId'],
         'name': json['name'],
         'type': json['type'],

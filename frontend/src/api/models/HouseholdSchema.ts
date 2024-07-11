@@ -19,8 +19,9 @@ import { mapValues } from '../runtime';
  * @interface HouseholdSchema
  */
 export interface HouseholdSchema {
+    household_id: number;
     /**
-     * 
+     *
      * @type {number}
      * @memberof HouseholdSchema
      */
@@ -106,7 +107,7 @@ export function HouseholdSchemaFromJSONTyped(json: any, ignoreDiscriminator: boo
         return json;
     }
     return {
-        
+        'household_id': json['household_id'],
         'domain': json['domain'],
         'description': json['description'],
         'status': json['status'],
@@ -125,7 +126,7 @@ export function HouseholdSchemaToJSON(value?: HouseholdSchema | null): any {
         return value;
     }
     return {
-        
+
         'domain': value['domain'],
         'description': value['description'],
         'status': value['status'],
