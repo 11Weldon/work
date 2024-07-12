@@ -2,9 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
-from src.queries import household
-from src.schemas.not_null import Omissible
-from src.schemas.household import HouseholdSchema, UserSchema, ProfileSchema, HouseholdProducts
+from src.api.services import household
+
+from src.models.household import HouseholdSchema, UserSchema, ProfileSchema, HouseholdProducts
+from src.models.utils import Omissible
 
 household_router = APIRouter()
 

@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
-from src.queries.orm import AsyncORM
-from src.router import channel, household, product, device
+from src.api.services.orm import AsyncORM
+from src.api.routes import channel, product, device, household
 from fastapi.openapi.utils import get_openapi
 
 

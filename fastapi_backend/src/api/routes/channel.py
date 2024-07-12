@@ -1,14 +1,25 @@
+from typing import Annotated
+
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.services.channel import ChannelService, get_channel_service
 from src.database import get_db
-from src.queries import channel
-from src.schemas.channel import ChannelSchema, ChannelLiveUrlsSchema, SetGroupProductServicesRequest, ProductSchema, \
+from src.api.services import channel
+from src.models.channel import ChannelSchema, ChannelLiveUrlsSchema, SetGroupProductServicesRequest, ProductSchema, \
     ServicesList
 
-channel_router = APIRouter()
+channel_router = APIRouter(prefix="/channels", tags=["channels"])
+
+
+@channel_router.get("")
+async def get_channels(
+    db_session: Annotated[AsyncSession, Depends(get_db)],
+    service: Annotated[ChannelService, Depends(get_channel_service)],
+):
+    return await service.dal.get_all(db_session)
 
 
 @channel_router.post("/op_facade/chnMgmt/CreateChannel")

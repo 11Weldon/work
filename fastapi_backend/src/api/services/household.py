@@ -2,16 +2,16 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models.household import UserProfile, Household, Profile, HouseholdProfile, HouseholdProduct
+from src.dal.schemas.household import UserProfileORM, HouseholdORM, ProfileORM, HouseholdProfileORM, HouseholdProductORM
 
 
 async def create_household(session: AsyncSession, user_data, household_data):
     try:
-        new_user = UserProfile(**user_data.dict())
+        new_user = UserProfileORM(**user_data.dict())
         session.add(new_user)
         await session.flush()
 
-        new_household = Household(**household_data.dict(), user_profile_id=new_user.user_id)
+        new_household = HouseholdORM(**household_data.dict(), user_profile_id=new_user.user_id)
         session.add(new_household)
         await session.commit()
         return {"result id": new_household.household_id}
@@ -24,28 +24,28 @@ async def create_household(session: AsyncSession, user_data, household_data):
 
 
 async def get_households(session: AsyncSession):
-    result = await session.execute(select(Household))
+    result = await session.execute(select(HouseholdORM))
     households = result.scalars().all()
     return households
 
 
 async def get_users(session: AsyncSession):
-    result = await session.execute(select(UserProfile))
+    result = await session.execute(select(UserProfileORM))
     return result.scalars().all()
 
 
 async def create_profile(session: AsyncSession, profile_data, household_id):
     try:
-        new_profile = Profile(**profile_data.dict())
+        new_profile = ProfileORM(**profile_data.dict())
         session.add(new_profile)
 
         existing_household_profile = await session.execute(
-            select(HouseholdProfile).filter_by(household_id=household_id, profile_id=new_profile.profile_id)
+            select(HouseholdProfileORM).filter_by(household_id=household_id, profile_id=new_profile.profile_id)
         )
         if existing_household_profile.scalar():
-            print(f"HouseholdProfile already exists for household_id={household_id} and profile_id={new_profile.profile_id}")
+            print(f"HouseholdProfileORM already exists for household_id={household_id} and profile_id={new_profile.profile_id}")
 
-        new_household_profile = HouseholdProfile(household_id=household_id, profile_id=new_profile.profile_id)
+        new_household_profile = HouseholdProfileORM(household_id=household_id, profile_id=new_profile.profile_id)
         session.add(new_household_profile)
 
         await session.commit()
@@ -59,7 +59,7 @@ async def create_profile(session: AsyncSession, profile_data, household_id):
 
 
 async def get_profiles(session: AsyncSession):
-    result = await session.execute(select(Profile))
+    result = await session.execute(select(ProfileORM))
     return result.scalars().all()
 
 
@@ -67,15 +67,15 @@ async def set_household_products(session: AsyncSession, profiles_data):
     try:
         for product_id in profiles_data.product_ids:
             existing_household_product = await session.execute(
-                select(HouseholdProduct).filter_by(product_id=product_id, household_id=profiles_data.household_id)
+                select(HouseholdProductORM).filter_by(product_id=product_id, household_id=profiles_data.household_id)
             )
             if existing_household_product.scalar():
-                print(f"HouseholdProduct already exists for product_id={product_id} and household_id={profiles_data.household_id}")
+                print(f"HouseholdProductORM already exists for product_id={product_id} and household_id={profiles_data.household_id}")
                 continue
 
-            new_household_product = HouseholdProduct(product_id=product_id, household_id=profiles_data.household_id)
+            new_household_product = HouseholdProductORM(product_id=product_id, household_id=profiles_data.household_id)
             session.add(new_household_product)
-            print(f"Added new HouseholdProduct for product_id={product_id} and household_id={profiles_data.household_id}")
+            print(f"Added new HouseholdProductORM for product_id={product_id} and household_id={profiles_data.household_id}")
 
         await session.commit()
         return {"result": 0}

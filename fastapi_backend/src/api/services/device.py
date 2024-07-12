@@ -2,12 +2,12 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.device import Device
+from src.dal.schemas.device import DeviceORM
 
 
 async def add_device(session: AsyncSession, device_data):
     try:
-        new_device = Device(**device_data.dict())
+        new_device = DeviceORM(**device_data.dict())
         session.add(new_device)
         await session.commit()
         return {"response": new_device.device_id}

@@ -1,68 +1,36 @@
-from sqlalchemy import Column, Integer, JSON, ForeignKey, String
-from sqlalchemy.orm import relationship
-from src.database import Base
+from typing import Optional, Dict, List
+
+from pydantic import Field
+
+from src.models.tuned_model import TunedModel
 
 
-class GroupProduct(Base):
-    __tablename__ = 'GroupProduct'
-
-    group_product_id = Column(Integer, primary_key=True, autoincrement=True)
-    external_id = Column(String(200))
-    type = Column(String(200))
-    status = Column(String(200))
-    name = Column(String(200))
-    title = Column(JSON)
-    descr = Column(JSON)
-    custom = Column(JSON)
-    prices = Column(JSON)
-    image = Column(JSON)
-
-    products = relationship("Products", secondary="GroupToProducts", backref="groups")
-    channels = relationship('Channel', secondary='Channel_GroupProduct', backref='products')
+class GroupProductSchema(TunedModel):
+    external_id: str
+    type: str
+    status: str
+    name: str
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
+    description: Optional[Dict[str, str]] = Field(default_factory=dict)
+    custom: Optional[Dict[str, str]] = Field(default_factory=dict)
+    prices: Optional[Dict[str, str]] = Field(default_factory=dict)
+    image: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
 
-class FeatureProduct(Base):
-    __tablename__ = 'FeatureProduct'
-
-    feature_product_id = Column(Integer, primary_key=True, autoincrement=True)
-    external_id = Column(String(200))
-    status = Column(String(200))
-    name = Column(String(200))
-    quota = Column(Integer)
-    valid_period = Column(Integer)
-    title = Column(JSON)
-    descr = Column(JSON)
-    custom = Column(JSON)
-    prices = Column(JSON)
-    image = Column(JSON)
-
-    products = relationship("Products", secondary="FeatureToProducts", backref="features")
+class FeatureProductSchema(TunedModel):
+    external_id: str
+    status: str
+    name: str
+    quota: int
+    valid_period: int
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
+    description: Optional[Dict[str, str]] = Field(default_factory=dict)
+    custom: Optional[Dict[str, str]] = Field(default_factory=dict)
+    prices: Optional[Dict[str, str]] = Field(default_factory=dict)
+    image: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
 
-class Products(Base):
-    __tablename__ = 'Products'
-
-    product_id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(JSON)
+class ProductSchema(TunedModel):
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
 
 
-class GroupToProducts(Base):
-    __tablename__ = 'GroupToProducts'
-
-    group_to_products_id = Column(Integer, primary_key=True, autoincrement=True)
-    group_product_id = Column(Integer, ForeignKey('GroupProduct.group_product_id'))
-    product_id = Column(Integer, ForeignKey('Products.product_id'))
-
-    group_product = relationship("GroupProduct", backref="group_to_products")
-    product = relationship("Products", backref="group_associations")
-
-
-class FeatureToProducts(Base):
-    __tablename__ = 'FeatureToProducts'
-
-    feature_to_products_id = Column(Integer, primary_key=True, autoincrement=True)
-    feature_product_id = Column(Integer, ForeignKey('FeatureProduct.feature_product_id'))
-    product_id = Column(Integer, ForeignKey('Products.product_id'))
-
-    feature_product = relationship("FeatureProduct", backref="feature_to_products")
-    product = relationship("Products", backref="feature_associations")

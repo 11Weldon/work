@@ -1,66 +1,60 @@
-from sqlalchemy import String, Integer, Column, JSON, ForeignKey, ARRAY, Boolean
-from sqlalchemy.orm import relationship
+from typing import Optional, Dict, List
 
-from src.database import Base
+from pydantic import Field
 
-
-class Service(Base):
-    __tablename__ = 'Service'
-
-    service_id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(String(200))
-    type = Column(String(200))
-    status = Column(String(200))
-    format = Column(Integer)
-    mProv_id = Column(Integer)
-    cProv_id = Column(Integer)
-    langs = Column(Integer)
+from src.models.tuned_model import TunedModel
 
 
-class Channel(Service):
-    __tablename__ = 'Channel'
+class ChannelSchema(TunedModel):
+    service_id: int
+    name: str
+    type: str
+    status: str
+    format: int
+    mProv_id: int
+    cProv_id: int
+    langs: int
 
-    channel_id = Column(Integer, autoincrement=True, primary_key=True)
-    service_id = Column(Integer, ForeignKey('Service.service_id'), nullable=False)
-    title = Column(JSON)
-    descr = Column(JSON)
-    custom = Column(JSON)
-    image = Column(JSON)
-    channel_urls = Column(JSON)
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
+    description: Optional[Dict[str, List[Dict[str, str]]]] = Field(default_factory=dict)
+    custom: Optional[Dict[str, str]] = Field(default_factory=dict)
+    image: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
-    group_product_id = Column(Integer, ForeignKey('GroupProduct.group_product_id'))
-    group_product = relationship('GroupProduct', back_populates='channels')
-
-    channel_list_id = Column(Integer, ForeignKey('ChannelList.channel_list_id'))
-    channel_list = relationship("ChannelList", back_populates="channels")
-
-
-class ChannelGroupProduct(Base):
-    __tablename__ = 'Channel_GroupProduct'
-
-    channel_group_product_id = Column(Integer, primary_key=True, autoincrement=True)
-    channel_id = Column(Integer, ForeignKey('Channel.channel_id'))
-    group_product_id = Column(Integer, ForeignKey('GroupProduct.group_product_id'))
-
-    channel = relationship("Channel", backref="channel_group_products")
-    group_product = relationship("GroupProduct", backref="group_product_channels")
+    class Config:
+        orm_mode = True
 
 
-class ChannelList(Base):
-    __tablename__ = 'ChannelList'
+class ChannelLiveUrlsSchema(TunedModel):
+    channel_id: int
+    channel_urls: Optional[List[Dict[str, str]]] = Field(default_factory=list)
 
-    channel_list_id = Column(Integer, autoincrement=True, primary_key=True)
-    target_type = Column(String(200))
-    target_id = Column(Integer)
-    name = Column(String(200))
-    type = Column(String(200))
-    seqNum = Column(Integer)
-    inheritable = Column(Boolean)
-    locked = Column(Boolean)
+    class Config:
+        orm_mode = True
 
-    title = Column(JSON)
-    descr = Column(JSON)
-    entry_ids = Column(ARRAY(String))
-    entry_lsns = Column(ARRAY(Integer))
 
-    channels = relationship("Channel", back_populates="channel_list")
+class SetGroupProductServicesRequest(TunedModel):
+    group_product_id: int
+    service_ids: List[int]
+
+
+class ProductSchema(TunedModel):
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
+class ServicesList(TunedModel):
+    target_type: str
+    target_id: int
+    name: str
+    type: str
+    seqNum: int
+    inheritable: bool
+    locked: bool
+
+    title: Optional[Dict[str, str]] = Field(default_factory=dict)
+    description: Optional[Dict[str, str]] = Field(default_factory=dict)
+    entry_ids: Optional[List[str]] = Field(default_factory=list)
+    entry_lsns: Optional[List[int]] = Field(default_factory=list)
