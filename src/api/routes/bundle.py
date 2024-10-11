@@ -11,7 +11,7 @@ from src.models.bundle import BundleModel, PurchaiseBundleModel, \
 from src.models.product import AddProductToBundle
 
 bundle_router = APIRouter(prefix="/bundles", tags=["bundles"])
-BASE_URL = "http://proxy-api_chtuka-1:81/bundles"
+BASE_URL = "http://chtuka-api_chtuka-1:81/bundles"
 
 
 @bundle_router.post("/create/")
@@ -30,7 +30,6 @@ async def create_bundle(
 
     return {"api": BundleModel.model_validate(res),
             "status_code": response.status_code}
-
 
 
 # @bundle_router.post("/create/upsell_info")
@@ -111,3 +110,4 @@ async def purchaise_bundle(
     )
 
     return res
+

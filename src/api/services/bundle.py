@@ -99,7 +99,7 @@ class BundleService:
         bundles = result.scalars().unique().all()
         bundle_ids = [bundle.id for bundle in bundles]
         transaction_id = "string"
-        # Уникальный ключ для хранения (можно использовать transaction_id или bundle_id)
+
         key = transaction_id
 
         bundle_objects = [
@@ -123,7 +123,7 @@ class BundleService:
         await redis_client.set(key, json.dumps(upsell_bundle.model_dump()), ex=300)
         # Сохранение данных в Redis с временем жизни 5 минут (300 секунд)
 
-        return {"transactionId": "transaction_id",
+        return {"transactionId": transaction_id,
                 "bundles": upsell_bundle,
                 "data": json.dumps(upsell_bundle.model_dump())}
 

@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 
 import httpx
@@ -6,27 +7,68 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.services.household import HouseholdService, get_household_service
 from src.dal.utils import get_db
-from src.models.household import CreateHouseholdModel
+from src.models.household import CreateHouseholdModel, CreateProfileModel, ClientProfileCustomData, SetUserProfiles
 
 household_router = APIRouter(prefix="/households", tags=["households"])
-BASE_URL = "http://proxy-api_chtuka-1:81/households"
+
+BASE_URL = "http://chtuka-api_chtuka-1:81/households"
 
 
 @household_router.post("/create/")
 async def create_household(
         db_session: Annotated[AsyncSession, Depends(get_db)],
         service: Annotated[HouseholdService, Depends(get_household_service)],
-        household: CreateHouseholdModel,
+        response_data: CreateHouseholdModel,
 ):
-    res: CreateHouseholdModel = await service.create_household(
-        session=db_session,
-        household_data=household.household
-    )
+    response_dict = response_data.dict()
+    # return response_dict
     async with httpx.AsyncClient() as client:
-        response = await client.post(f'{BASE_URL}/create/', json=household.dict())
+        response = await client.post(f'{BASE_URL}/create/', json=response_dict)
 
-    return {"api": CreateHouseholdModel.model_validate(res),
-            "res": response.status_code}
+    if response.status_code == 200:
+    # if True:
+        household = await service.create_household(
+            session=db_session,
+            household_data=response_data.household
+        )
+        user = await service.create_user(
+            session=db_session,
+            user_data=response_data.user,
+            household_id=household.id
+        )
+        cp_custom = ClientProfileCustomData(active_channel_list="G:1", active_channel="S:1", budget_limit=100000, language="rus").dict()
+        profile = await service.create_profile(
+            session=db_session,
+            profile_data=CreateProfileModel(
+                household_id=household.id,
+                name=f"{user.first_name} {user.last_name}",
+                description='auto create with create household',
+                type=1,
+                age=18,
+                pin='1111',
+                purchase_pin='1111',
+                custom_data=json.dumps(cp_custom),
+            )
+        )
+
+        user_profiles = await service.set_user_profiles(
+            session=db_session,
+            data=SetUserProfiles(
+                user_id=user.id,
+                profile_ids=[profile.id],
+                default_profile_id=profile.id
+            )
+        )
+
+        return {
+            "user": user,
+            "household": household,
+            "profile": profile,
+            "user_profiles": user_profiles,
+            "response": response.json()
+
+        }
+    return response.json()
 
 
 @household_router.post("/get/")
@@ -35,6 +77,26 @@ async def get_household(
         service: Annotated[HouseholdService, Depends(get_household_service)],
 ):
     res = await service.get_household(session=db_session)
+
+    return res
+
+
+@household_router.post("/get_user_profiles/")
+async def get_user_profiles(
+        db_session: Annotated[AsyncSession, Depends(get_db)],
+        service: Annotated[HouseholdService, Depends(get_household_service)],
+):
+    res = await service.get_user_profiles(session=db_session)
+
+    return res
+
+
+@household_router.post("/get_user/")
+async def get_user(
+        db_session: Annotated[AsyncSession, Depends(get_db)],
+        service: Annotated[HouseholdService, Depends(get_household_service)],
+):
+    res = await service.get_user(session=db_session)
 
     return res
 

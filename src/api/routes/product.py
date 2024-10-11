@@ -9,7 +9,7 @@ from src.dal.utils import get_db
 from src.models.product import CreateProductModel, ProductModel
 
 product_router = APIRouter(prefix="/products", tags=["products"])
-BASE_URL = "http://proxy-api_chtuka-1:81/products"
+BASE_URL = "http://chtuka-api_chtuka-1:81/products"
 
 
 @product_router.post("/create/")
@@ -40,3 +40,4 @@ async def get_product(
         session=db_session,
     )
     return res
+
