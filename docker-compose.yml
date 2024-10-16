@@ -1,4 +1,3 @@
-version: '3'
 services:
   api_chtuka:
     build:
@@ -11,7 +10,7 @@ services:
       DB_USER: postgres
       DB_PASS: mysecretpassword
       DB_NAME: postgres
-      REDIS_HOST: redis
+      REDIS_HOST: redis-chtuka
       REDIS_PORT: 6379
     depends_on:
       - db_chtuka

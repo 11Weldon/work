@@ -2,6 +2,7 @@ from typing import Callable, AsyncGenerator, Any
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 
 from src.api.routes import api_router
 
@@ -19,6 +20,7 @@ def create_app(
     if lifespan is not None:
         params.update(lifespan=lifespan)
     app = FastAPI(**params)
+    app.mount("/api/logo", StaticFiles(directory="public/logo"), name="logo")
     app.include_router(api_router)
     app.add_middleware(
         CORSMiddleware,

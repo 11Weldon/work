@@ -5,7 +5,7 @@ from operatorfacade.src.zappware.operator_facade.models.user import UserInfo
 from pydantic import Field, Json
 
 from src.enums.unlisted import HouseholdStatus
-from src.models.primitive import OFdatetime, OFIntDtMap, OFStrDtMap, OFStrIntMap, OFIntIntMap
+from src.models.primitive import OFdatetime, OFIntDtMap, OFStrDtMap, OFStrIntMap, OFIntIntMap, OFStrStrMap
 from src.models.utils import TunedModel
 
 
@@ -65,6 +65,26 @@ class CreateHouseholdModel(TunedModel):
     hashed_password: bool | None = False
     custom_data: Json[HouseholdCustomData] | None = None
 
+
+class CreateProfileModel(TunedModel):
+    household_id: int
+    name: str
+    description: str
+    type: int
+    age: int
+    pin: str
+    purchase_pin: str
+    custom_data: str | None = None
+    images: OFStrStrMap | None = None
+    mediaIds: list[int] | None = None
+
+
+class SetUserProfiles(TunedModel):
+    user_id: int
+    profile_ids: list[int]
+    default_profile_id: int
+
+
 class UpdateHouseholdInfoModel(TunedModel):
     acc_code: str
     first_name: Optional[str]
@@ -86,17 +106,16 @@ class UpdateHouseholdModel(TunedModel):
 
 
 class SubscribeProductModel(TunedModel):
-    acc_code: str
-    product_id: str
-    is_enabled: bool
+    household_id: int
+    product_ids: list[int]
 
 
 class UnsubscribeProductModel(TunedModel):
-    acc_code: str
-    product_id: str
+    household_id: int
+    product_id: int
 
 
 class SetProductStatusModel(TunedModel):
-    acc_code: str
-    product_id: str
+    household_id: int
+    product_id: int
     is_enabled: bool

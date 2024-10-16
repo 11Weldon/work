@@ -2,22 +2,17 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dal.schemas.product import ProductORM
-# from src.models.product import CreateProductModel
 
 
 class ProductService:
     # @staticmethod
-    # async def create_product(session: AsyncSession, product_data: CreateProductModel):
+    # async def create_product(session: AsyncSession, product_data: CreateGroupProduct):
     #
-    #     response_data = {"response": 0}
-    #     if response_data == {"response": 0}:
-    #         new_product = ProductORM(**product_data.dict(exclude_unset=True))
-    #         session.add(new_product)
-    #         await session.commit()
+    #     new_product = ProductORM(**product_data.dict(exclude_unset=True))
+    #     session.add(new_product)
+    #     await session.commit()
     #
-    #         return new_product
-    #     else:
-    #         return
+    #     return new_product
 
     @staticmethod
     async def get_product(session: AsyncSession):

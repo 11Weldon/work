@@ -4,9 +4,10 @@ import anyio
 from fastapi import APIRouter, Depends
 from operatorfacade.src.zappware.operator_facade.enums.media_enums import MediaContentType
 from operatorfacade.src.zappware.operator_facade.enums.unlisted import ImgUrls
+from operatorfacade.src.zappware.operator_facade.models import GroupProduct
+
 from operatorfacade.src.zappware.operator_facade.models.media import MediaData
 from sqlalchemy.ext.asyncio import AsyncSession
-from operatorfacade.src.zappware.operator_facade.models.group import GroupProduct, CreateGroupProduct
 
 from src.api.services import of
 from src.api.services.product import ProductService, get_product_service
@@ -20,9 +21,9 @@ product_router = APIRouter(prefix="/products", tags=["products"])
 async def create_product(
         db_session: Annotated[AsyncSession, Depends(get_db)],
         service: Annotated[ProductService, Depends(get_product_service)],
-        product: CreateGroupProduct,
+        product: GroupProduct,
 ):
-    # res: ProductModel = await service.create_product(
+    # res = await service.create_product(
     #     session=db_session,
     #     product_data=product
     # )
@@ -44,25 +45,23 @@ async def create_product(
             prices=product.prices,
             images=images,
             featProdId=product.feat_prod_id)
-    # async with httpx.AsyncClient() as client:
-    #     response = 200
-    #     ...
-    #     # response = await client.post(f'{BASE_URL}/bundles/get_upsell_info', json=upsell_data.dict())
-    return lgpres
 
+    return {
+        # "proxy": res,
+        "zappwer": lgpres,
+    }
 
 @product_router.get("/get/")
 async def get_product(
         db_session: Annotated[AsyncSession, Depends(get_db)],
         service: Annotated[ProductService, Depends(get_product_service)],
 ):
-    # res: ProductModel = await service.get_product(
+    # res = await service.get_product(
     #     session=db_session,
     # )
     lgpres = await of.prodMgmt.list_group_products(ImgUrls.CDN, True)
-    # for p in lgpres:
-    #     ggpres = await of.prodMgmt.get_group_product(p.id)
-    #
-    return lgpres
 
-    return res
+    return {
+        # "proxy": res,
+        "zappwer": lgpres,
+    }

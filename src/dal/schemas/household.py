@@ -41,7 +41,7 @@ class HouseholdORM(Base):
 
     # upsell_info = relationship('UpsellInfo', back_populates='household')
 
-    # products = relationship("HouseholdToProductORM", back_populates="household")
+    products = relationship("HouseholdToProductORM", back_populates="household")
 
 
 class UserORM(Base):
@@ -66,6 +66,7 @@ class ClientProfileORM(Base):
     __tablename__ = 'client_profile'
 
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    household_id = mapped_column(Integer, nullable=True)
     description = mapped_column(String, nullable=True)
     age = mapped_column(Integer, nullable=True)
     pin = mapped_column(String, nullable=True)
@@ -75,4 +76,12 @@ class ClientProfileORM(Base):
     name = mapped_column(String, unique=True, nullable=True)
     image_urls = mapped_column(JSON, nullable=True)
     time_stamp = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class UserProfilesORM(Base):
+    __tablename__ = 'user_profiles'
+
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id = mapped_column(Integer)
+    profile_id = mapped_column(Integer, nullable=True)
 
