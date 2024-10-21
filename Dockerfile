@@ -1,11 +1,12 @@
 FROM python:3.12
 
-WORKDIR /chtuka
+ENV PROJECT_DIR=/chtuka
 
-COPY . /chtuka
+WORKDIR $PROJECT_DIR
 
-COPY .venv/Lib/site-packages/operatorfacade /chtuka/operatorfacade
-RUN pip install /chtuka/operatorfacade --no-cache-dir
+COPY . $PROJECT_DIR
+
+RUN pip install $PROJECT_DIR/Lib/operatorfacade --no-cache-dir
 
 RUN pip install -r requirements.txt --no-cache-dir
 

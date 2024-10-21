@@ -15,8 +15,6 @@ services:
     depends_on:
       - db_chtuka
       - redis-chtuka
-    networks:
-      - app-network-chtuka
 
   db_chtuka:
     image: postgres:16
@@ -26,18 +24,8 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5433:5432"
-    networks:
-        - app-network-chtuka
 
   redis-chtuka:
     image: redis:alpine
     ports:
       - "6380:6379"
-    networks:
-      - app-network-chtuka
-
-networks:
-  app-network-chtuka:
-    driver: bridge
-  shared-network:
-    external: true
